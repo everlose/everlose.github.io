@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Angular实现了双向绑定机制。所谓的双向绑定，无非是从界面的操作能实时反映到数据，数据的变更能实时展现到界面。Angular使用的是脏检测来双向绑定，意味着当改变数据之后，你自己要做一些事情来触发脏检测，然后再应用到这个数据对应的DOM元素上。问题就在于，怎样触发脏检测？什么时候触发？">
+<meta name="keywords" content="angular">
+<meta property="og:type" content="article">
+<meta property="og:title" content="angular 1.x 脏值检测简析">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2017&#x2F;03&#x2F;30&#x2F;js-lib&#x2F;angular-binding&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="Angular实现了双向绑定机制。所谓的双向绑定，无非是从界面的操作能实时反映到数据，数据的变更能实时展现到界面。Angular使用的是脏检测来双向绑定，意味着当改变数据之后，你自己要做一些事情来触发脏检测，然后再应用到这个数据对应的DOM元素上。问题就在于，怎样触发脏检测？什么时候触发？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.815Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://everlose.github.io/2017/03/30/js-lib/angular-binding/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>angular 1.x 脏值检测简析 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2017/03/30/js-lib/angular-binding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          angular 1.x 脏值检测简析
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-03-30 00:00:00" itemprop="dateCreated datePublished" datetime="2017-03-30T00:00:00+08:00">2017-03-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js-lib/" itemprop="url" rel="index">
+                    <span itemprop="name">js-lib</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">Angular实现了双向绑定机制。所谓的双向绑定，无非是从界面的操作能实时反映到数据，数据的变更能实时展现到界面。Angular使用的是脏检测来双向绑定，意味着当改变数据之后，你自己要做一些事情来触发脏检测，然后再应用到这个数据对应的DOM元素上。问题就在于，怎样触发脏检测？什么时候触发？</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>假如没有AngularJS，我们想要自己实现这么个功能，应该怎样？</p>
+<p>希望点击按钮而下面三个counter都能被改动。html代码如下</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">ng-click</span>=<span class="string">"inc"</span>&gt;</span></span><br><span class="line">    increase 1</span><br><span class="line"><span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">ng-click</span>=<span class="string">"inc2"</span>&gt;</span></span><br><span class="line">    increase 2</span><br><span class="line"><span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"color:red"</span> <span class="attr">ng-bind</span>=<span class="string">"counter"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"color:blue"</span> <span class="attr">ng-bind</span>=<span class="string">"counter"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"color:green"</span> <span class="attr">ng-bind</span>=<span class="string">"counter"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>脏检测的机制没有这个阶段，它没有任何途径在数据变更之后立即得到通知，所以只能在每个事件入口中手动调用apply()，把数据的变更应用到界面上。在真正的Angular实现中，这里先进行脏检测，确定数据有变化了，然后才对界面设值。</p>
+<p>所以，我们在有ng-click属性的DOM里去封装真正的click，最重要的作用是为了在之后追加一次apply()，把数据的变更应用到界面上去。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 数据模型区开始 */</span></span><br><span class="line"><span class="keyword">var</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">inc</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    counter++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">inc2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    counter+=<span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 数据模型区结束 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 绑定关系区开始 */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">init</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    bind();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bind</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> list = <span class="built_in">document</span>.querySelectorAll(<span class="string">"[ng-click]"</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;list.length; i++) &#123;</span><br><span class="line">        list[i].onclick = (<span class="function"><span class="keyword">function</span>(<span class="params">index</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="built_in">window</span>[list[index].getAttribute(<span class="string">"ng-click"</span>)]();</span><br><span class="line">                apply();</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;)(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">apply</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> list = <span class="built_in">document</span>.querySelectorAll(<span class="string">"[ng-bind='counter']"</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;list.length; i++) &#123;</span><br><span class="line">        list[i].innerHTML = counter;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 绑定关系区结束 */</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="angular核心数据变更响应函数"><a href="#angular核心数据变更响应函数" class="headerlink" title="angular核心数据变更响应函数"></a>angular核心数据变更响应函数</h2><p>对象比对函数和深度拷贝函数使用了lodash的函数库，附上lodash的cdn：<a href="http://apps.bdimg.com/libs/lodash/3.5.0/lodash.js。" target="_blank" rel="noopener">http://apps.bdimg.com/libs/lodash/3.5.0/lodash.js。</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Scope</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">//在Angular框架中，双美元符前缀$$表示这个变量被当作私有的来考虑，不应当在外部代码中调用。</span></span><br><span class="line">    <span class="comment">//监控对象$watch</span></span><br><span class="line">    <span class="keyword">this</span>.$$watchers = [];</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//监控方法</span></span><br><span class="line">Scope.prototype.$watch = <span class="function"><span class="keyword">function</span>(<span class="params">watchFn, listenerFn, valueEq</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> watcher = &#123;</span><br><span class="line">        <span class="comment">//监听对象，函数执行会返回一个对象做检测值。</span></span><br><span class="line">        watchFn: watchFn,</span><br><span class="line">        <span class="comment">//响应方法，当监听对象的值发生改变则会执行相应方法。</span></span><br><span class="line">        listenerFn: listenerFn || <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125;,</span><br><span class="line">        <span class="comment">//可选参数。true代表值的检查开启，脏检查的值如是对象或着数组则它辅助处理</span></span><br><span class="line">        valueEq: !!valueEq</span><br><span class="line">    &#125;;</span><br><span class="line">    self.$$watchers.push(watcher);</span><br><span class="line">    <span class="comment">//重复$watch一个watcher后将会销毁那个监听器。</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> index = self.$$watchers.indexOf(watcher);</span><br><span class="line">        <span class="keyword">if</span> (index &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            self.$$watchers.splice(index, <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line">Scope.prototype.$$areEqual = <span class="function"><span class="keyword">function</span>(<span class="params">newValue, oldValue, valueEq</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//如果传入的值是对象或者数组比对的话满足if</span></span><br><span class="line">    <span class="keyword">if</span> (valueEq) &#123;</span><br><span class="line">        <span class="keyword">return</span> _.isEqual(newValue, oldValue);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> newValue === oldValue || (<span class="built_in">Number</span>.isNaN(newValue) &amp;&amp; <span class="built_in">Number</span>.isNaN(oldValue));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">Scope.prototype.$$digestOnce = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> dirty = <span class="literal">false</span>;</span><br><span class="line">    <span class="comment">//遍历所有的监听对象，如果监听的值有变化的话则执行listenerFn函数。并且返回true，代表数据脏需要持续再digest一次。</span></span><br><span class="line">    <span class="keyword">this</span>.$$watchers.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">watch, index</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">var</span> newValue = watch.watchFn(self);</span><br><span class="line">            <span class="keyword">var</span> oldValue = watch.last;</span><br><span class="line">            <span class="keyword">if</span> (!self.$$areEqual(newValue, oldValue, watch.valueEq)) &#123;</span><br><span class="line">                watch.listenerFn(newValue, oldValue, self);</span><br><span class="line">                dirty = <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//对象或数组的话则深度拷贝。</span></span><br><span class="line">            watch.last = (watch.valueEq ? _.cloneDeep(newValue) : newValue);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">            <span class="built_in">console</span>.error(e);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> dirty;</span><br><span class="line">&#125;;</span><br><span class="line">Scope.prototype.$digest = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">//angular的digest运行需要控制在一个可接受的迭代数量内</span></span><br><span class="line">    <span class="keyword">var</span> ttl = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">var</span> dirty = <span class="keyword">this</span>.$$digestOnce();</span><br><span class="line">    <span class="comment">//循环到监控的值停止变更，从而稳定下来。</span></span><br><span class="line">    <span class="keyword">while</span> (dirty) &#123;</span><br><span class="line">        <span class="comment">//超过迭代数量限制，而作用域却还在变更，那就认为它永远也不会稳定，放手throw异常咯。</span></span><br><span class="line">        <span class="keyword">if</span> (dirty &amp;&amp; !(ttl--))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="string">"10 digest iterations reached"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        dirty = <span class="keyword">this</span>.$$digestOnce();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//$eval使用一个函数作参数，所做的事情是立即执行这个传入的函数，并且把作用域自身当作参数传递给它，返回的是这个函数的返回值</span></span><br><span class="line">Scope.prototype.$<span class="built_in">eval</span> = <span class="function"><span class="keyword">function</span>(<span class="params">expr, locals</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> expr &amp;&amp; expr(<span class="keyword">this</span>, locals);</span><br><span class="line">&#125;;</span><br><span class="line">Scope.prototype.$apply = <span class="function"><span class="keyword">function</span>(<span class="params">expr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.$<span class="built_in">eval</span>(expr);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.$digest();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> scope = <span class="keyword">new</span> Scope();</span><br><span class="line">scope.name = <span class="string">'chen'</span>;</span><br><span class="line">scope.counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">scope.$watch(</span><br><span class="line">    <span class="function"><span class="keyword">function</span>(<span class="params">scope</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> scope.name;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="function"><span class="keyword">function</span>(<span class="params">newValue, oldValue, scope</span>) </span>&#123;</span><br><span class="line">        scope.counter++;</span><br><span class="line">    &#125;</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">scope.$digest();</span><br><span class="line"><span class="built_in">console</span>.log(scope.counter === <span class="number">1</span>); <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line">scope.name = <span class="string">'chentt'</span>;</span><br><span class="line">scope.$digest();</span><br><span class="line"><span class="built_in">console</span>.log(scope.counter === <span class="number">2</span>); <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="整合结果"><a href="#整合结果" class="headerlink" title="整合结果"></a>整合结果</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">ng-click</span>=<span class="string">"inc"</span>&gt;</span></span><br><span class="line">    increase 1</span><br><span class="line"><span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">ng-click</span>=<span class="string">"inc2"</span>&gt;</span></span><br><span class="line">    increase 2</span><br><span class="line"><span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"color:red"</span> <span class="attr">ng-bind</span>=<span class="string">"counter"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"color:blue"</span> <span class="attr">ng-bind</span>=<span class="string">"counter"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"color:green"</span> <span class="attr">ng-bind</span>=<span class="string">"counter"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"http://apps.bdimg.com/libs/lodash/3.5.0/lodash.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./scope.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 数据模型区开始 */</span></span><br><span class="line"><span class="keyword">var</span> scope = <span class="keyword">new</span> Scope();</span><br><span class="line">scope.counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">inc</span>(<span class="params">scope</span>) </span>&#123;</span><br><span class="line">    scope.counter += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">inc2</span>(<span class="params">scope</span>) </span>&#123;</span><br><span class="line">    scope.counter += <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 数据模型区结束 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 绑定关系区开始 */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bind</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> list = <span class="built_in">document</span>.querySelectorAll(<span class="string">"[ng-click]"</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;list.length; i++) &#123;</span><br><span class="line">        list[i].onclick = (<span class="function"><span class="keyword">function</span>(<span class="params">index</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="built_in">window</span>[list[index].getAttribute(<span class="string">"ng-click"</span>)](scope);</span><br><span class="line">                scope.$apply();</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;)(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">watch</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getBindNames</span> (<span class="params">arr</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> doms = <span class="built_in">Array</span>.prototype.slice.call(<span class="built_in">document</span>.querySelectorAll(<span class="string">"[ng-bind]"</span>));</span><br><span class="line">        <span class="keyword">var</span> bindNames = doms.map(<span class="function"><span class="keyword">function</span> (<span class="params">dom</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> dom.getAttribute(<span class="string">'ng-bind'</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="comment">//去除重复项</span></span><br><span class="line">        <span class="keyword">var</span> <span class="keyword">set</span> = new Set(bindNames);</span><br><span class="line">        return Array.from(<span class="keyword">set</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    var binds = getBindNames();</span><br><span class="line"></span><br><span class="line">    binds.forEach(function (v, k) &#123;</span><br><span class="line">        scope.$watch(</span><br><span class="line">            <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> scope[v];</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="function"><span class="keyword">function</span>(<span class="params">newValue, oldValue, scope</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">var</span> list = <span class="built_in">document</span>.querySelectorAll(<span class="string">"[ng-bind='"</span> + v + <span class="string">"']"</span>);</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;list.length; i++) &#123;</span><br><span class="line">                    list[i].innerHTML = scope[v];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        );</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    watch();</span><br><span class="line">    bind();</span><br><span class="line">    scope.$digest();    </span><br><span class="line">    </span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://github.com/xufei/blog/issues/10" target="_blank" rel="noopener">Angular沉思录（一）数据绑定</a></p>
+<p><a href="https://github.com/xufei/Make-Your-Own-AngularJS/blob/master/01.md" target="_blank" rel="noopener">构建自己的AngularJS</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/angular/" rel="tag"># angular</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2017/03/23/tcp-http/broswer-cache/" rel="next" title="浏览器强缓存与协商缓存">
+                  <i class="fa fa-chevron-left"></i> 浏览器强缓存与协商缓存
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2017/04/10/javascript/commonjs-amd-cmd-es6/" rel="prev" title="CommonJS 中的 require/exports 和 ES6 中的 import/export 区别？">
+                  CommonJS 中的 require/exports 和 ES6 中的 import/export 区别？ <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#示例"><span class="nav-number">1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#angular核心数据变更响应函数"><span class="nav-number">2.</span> <span class="nav-text">angular核心数据变更响应函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整合结果"><span class="nav-number">3.</span> <span class="nav-text">整合结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: 'c29886ef8f6bf9f6110246dd3979ceae',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

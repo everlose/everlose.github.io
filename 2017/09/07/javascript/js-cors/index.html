@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="ajax跨域方法有很多种。常用的有jsonp请求，xhr2，后台代理方式，基于iframe实现跨域。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="js跨域的几种方式">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2017&#x2F;09&#x2F;07&#x2F;javascript&#x2F;js-cors&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="ajax跨域方法有很多种。常用的有jsonp请求，xhr2，后台代理方式，基于iframe实现跨域。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.814Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://everlose.github.io/2017/09/07/javascript/js-cors/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>js跨域的几种方式 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2017/09/07/javascript/js-cors/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          js跨域的几种方式
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-09-07 10:41:32" itemprop="dateCreated datePublished" datetime="2017-09-07T10:41:32+08:00">2017-09-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">ajax跨域方法有很多种。常用的有jsonp请求，xhr2，后台代理方式，基于iframe实现跨域。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="jsonp请求"><a href="#jsonp请求" class="headerlink" title="jsonp请求"></a>jsonp请求</h2><p>ajax 本身是不可以跨域的，通过产生一个 script 标签来实现跨域。因为 script 标签的 src 属性是没有跨域的限制的。<br>jquery 其实设置了 dataType: ‘jsonp’ 后，$.ajax 方法就和 ajax XmlHttpRequest 没什么关系了，取而代之的则是 JSONP 协议。<br>JSONP 是一个非官方的协议，它允许在服务器端集成 Script tags 返回至客户端，通过 javascript callback 的形式实现跨域访问。</p>
+<p>jQuery并没有用其它新奇的技术，只不是对 <code>&lt;script src=&quot;&quot;/&gt;</code> 做了个封装，以实现jsonp跨域的方式。</p>
+<p>我们封装一层jsonp的实现，废话不说，上代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> jsonp = <span class="function"><span class="keyword">function</span> (<span class="params">opts</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//to produce random string</span></span><br><span class="line">    <span class="keyword">var</span> generateRandomAlphaNum = <span class="function"><span class="keyword">function</span> (<span class="params">len</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> rdmString = <span class="string">''</span>;</span><br><span class="line">        <span class="keyword">for</span> (; rdmString.length &lt; len; rdmString += <span class="built_in">Math</span>.random().toString(<span class="number">36</span>).substr(<span class="number">2</span>));</span><br><span class="line">        <span class="keyword">return</span> rdmString.substr(<span class="number">0</span>, len);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> url = <span class="keyword">typeof</span> opts === <span class="string">'string'</span> ? opts : opts.url,</span><br><span class="line">        callbackName = opts.callbackName || <span class="string">'jsonpCallback'</span> + generateRandomAlphaNum(<span class="number">10</span>),</span><br><span class="line">        callbackFn = opts.callbackFn || <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">    <span class="keyword">if</span> (url.indexOf(<span class="string">'callback'</span>) === <span class="number">-1</span>) &#123;</span><br><span class="line">        url += url.indexOf(<span class="string">'?'</span>) === <span class="number">-1</span> ? <span class="string">'?callback='</span> + callbackName :</span><br><span class="line">            <span class="string">'&amp;callback='</span> + callbackName;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> opts === <span class="string">'object'</span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> params = (<span class="function"><span class="keyword">function</span>(<span class="params">obj</span>)</span>&#123;</span><br><span class="line">            <span class="keyword">var</span> str = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">var</span> prop <span class="keyword">in</span> obj)&#123;</span><br><span class="line">                str += prop + <span class="string">'='</span> + obj[prop] + <span class="string">'&amp;'</span></span><br><span class="line">            &#125;</span><br><span class="line">            str = str.slice(<span class="number">0</span>, str.length - <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">return</span> str;</span><br><span class="line">        &#125;)(opts.data);</span><br><span class="line">        url += <span class="string">'&amp;'</span> + params;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> eleScript= <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</span><br><span class="line">    eleScript.type = <span class="string">'text/javascript'</span>;</span><br><span class="line">    eleScript.id = <span class="string">'jsonp'</span>;</span><br><span class="line">    eleScript.src = url;</span><br><span class="line">    <span class="built_in">document</span>.getElementsByTagName(<span class="string">'HEAD'</span>)[<span class="number">0</span>].appendChild(eleScript);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// window[callbackName] = callbackFn;</span></span><br><span class="line">    <span class="comment">//return promise</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span> (<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">window</span>[callbackName] = <span class="function"><span class="keyword">function</span> (<span class="params">json</span>) </span>&#123;</span><br><span class="line">            resolve(json);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//onload are executed just after the sync request is comple，</span></span><br><span class="line">        <span class="comment">//please use 'onreadystatechange' if need support IE9-</span></span><br><span class="line">        eleScript.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="comment">//delete the script element when a request done。</span></span><br><span class="line">            <span class="built_in">document</span>.getElementById(<span class="string">'jsonp'</span>).outerHTML = <span class="string">''</span>;</span><br><span class="line">            eleScript = <span class="literal">null</span>;</span><br><span class="line">        &#125;;</span><br><span class="line">        eleScript.onerror = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="built_in">document</span>.getElementById(<span class="string">'jsonp'</span>).outerHTML = <span class="string">''</span>;</span><br><span class="line">            eleScript = <span class="literal">null</span>;</span><br><span class="line">            reject(<span class="string">'error'</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">jsonp(&#123;</span><br><span class="line">    url: <span class="string">'http://erp.souche.com/pc/car/carpricetagaction/carPriceInfo.jsonp'</span>, <span class="comment">/*url写异域的请求地址*/</span></span><br><span class="line">    data: &#123;</span><br><span class="line">        carId: <span class="string">'0a499720d77f4e55a0ac490ed115fc4e'</span>,</span><br><span class="line">        picNum: <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d.data);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>jsonp的缺点：只支持GET请求，也容易被运营商劫持插入奇怪的广告。</p>
+<p>jsonp的优点：能支持老的浏览器。</p>
+<h2 id="xhr2"><a href="#xhr2" class="headerlink" title="xhr2"></a>xhr2</h2><p>XHR2在众多HTML5新特性中算是比较低调的一个了。我翻了几本HTML5的书，只有《HTML5高级程序设计》弱弱地讲了几页。网上的资料也不多，很大的一个原因我估计是目前有浏览器还压根不兼容，看看下面的兼容列表：</p>
+<ul>
+<li>Chrome 7.0及以上</li>
+<li>Firefox 3.5以上</li>
+<li>Internet Explorer 10及以上</li>
+<li>Opera 12.1及以上</li>
+<li>Safari 5.0及以上</li>
+<li>android broswer 3及以上</li>
+<li>ios safari 5.1及以上</li>
+</ul>
+<p>XHR2这么叫多少有点误导的感觉，实际上没有什么XHR1，XHR2这样的概念，XHR2只是一套新的规范，在原有XHR对象上新增了一些功能：跨域访问，全新的事件，还有请求进度以及响应进度。 所以呢，要实现XHR2特性还是使用XMLHttpRequest对象，前提是浏览器要支持XHR2：<br>http发现这是一个跨源的ajax请求后就自动在头信息添加一个origin字段，服务器根据这个字段判断是否同意这次请求，如果同意这次请求则在响应头中插入字段 <code>Access-Control-Allow-Origin</code> 。</p>
+<p>这是常见的一个 http response header 里关于 xhr2 的设置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Access-Control-Allow-Credentials: true</span><br><span class="line">Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, TT, _security_token</span><br><span class="line">Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS, DELETE</span><br><span class="line">Access-Control-Allow-Origin: http://xxx.domain.com</span><br></pre></td></tr></table></figure>
+
+<p>请注意，如果需要请求中带上 cookie 则把 <code>Access-Control-Allow-Credentials</code> 设置为 true。但是如果 <code>Access-Control-Allow-Origin</code> 为 * 时，这么设置将会报错。</p>
+<p>优点是支持所有类型的http请求</p>
+<p>缺点是 <code>Access-Control-Allow-Origin</code> 这个头所跨的域本人实践写多个域名无效，那么就只能跨一个网站。</p>
+<h2 id="后台代理方式"><a href="#后台代理方式" class="headerlink" title="后台代理方式"></a>后台代理方式</h2><p>这种方式可以解决所有跨域问题，也就是将后台作为代理，每次对其它域的请求转交给本域的后台，本域的后台通过模拟http请求去访问其它域，再将返回的结果返回给前台。</p>
+<p>优点是无论访问的是文档，还是js文件都可以实现跨域。</p>
+<p>缺点为每一个请求都需要一个后端去写转发的支持。</p>
+<h2 id="iframe跨域"><a href="#iframe跨域" class="headerlink" title="iframe跨域"></a>iframe跨域</h2><p>对于主域相同而子域不同的例子，可以通过设置document.domain的办法来解决。具体的做法是可以在 <code>http://www.a.com/a.html</code> 和<code>http://script.a.com/b.html</code> 两个文件中分别加上 <code>document.domain = &#39;a.com&#39;</code>；然后通过 a.html 文件中创建一个 iframe ，去控制 iframe 的 contentDocument，这样两个js文件之间就可以“交互”了。当然这种办法只能解决主域相同而二级域名不同的情况，如果你异想天开的把script.a.com的domian设为alibaba.com那显然是会报错地！代码如下：</p>
+<p><a href="http://www.a.com" target="_blank" rel="noopener">www.a.com</a> 上的 a.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">document.domain = &apos;a.com&apos;;</span><br><span class="line">var ifr = document.createElement(&apos;iframe&apos;);</span><br><span class="line">ifr.src = &apos;http://script.a.com/b.html&apos;;</span><br><span class="line">ifr.style.display = &apos;none&apos;;</span><br><span class="line">document.body.appendChild(ifr);</span><br><span class="line">ifr.onload = function()&#123;</span><br><span class="line">    var doc = ifr.contentDocument || ifr.contentWindow.document;</span><br><span class="line">    // 在这里操纵b.html</span><br><span class="line">    alert(doc.getElementsByTagName(&quot;h1&quot;)[0].childNodes[0].nodeValue);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>script.a.com 上的 b.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">document.domain = &apos;a.com&apos;;</span><br></pre></td></tr></table></figure>
+
+<p>问题：</p>
+<ul>
+<li>安全性，当一个站点（b.a.com）被攻击后，另一个站点（c.a.com）会引起安全漏洞。</li>
+<li>如果一个页面中引入多个iframe，要想能够操作所有iframe，必须都得设置相同domain。</li>
+</ul>
+<h2 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h2><p>实际开发过程中，我的做法是本地用后台代理方式，也就是node中转一层去获取数据，关于这一点比方说 webpack 的配置项 proxyTable 就提供了这样的功能。下面提供了一段简单的配置</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> devConf = &#123;</span><br><span class="line">    env: <span class="string">'dev'</span>,</span><br><span class="line">    globalConfig: &#123;</span><br><span class="line">        NODE_ENV: <span class="built_in">JSON</span>.stringify(<span class="string">"development"</span>),</span><br><span class="line">        TEST: <span class="built_in">JSON</span>.stringify(<span class="string">"/api/get"</span>)</span><br><span class="line">    &#125;,</span><br><span class="line">    proxyTable: &#123;</span><br><span class="line">        <span class="string">'/api/get'</span>: &#123;</span><br><span class="line">            target: <span class="string">'http://test.sqaproxy.xx.com'</span>,</span><br><span class="line">            changeOrigin: <span class="literal">true</span>,</span><br><span class="line">            pathRewrite: &#123;</span><br><span class="line">                <span class="string">'/api/get'</span>: <span class="string">''</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>那么具体文件中访问 globalConfig 中的 TEST 变量就是代理后的地址</p>
+<p>而到了预发和线上时，自然有后端返回的 <code>Access-Control-Allow-Origin</code> 头来做 xhr2 跨域。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://www.ruanyifeng.com/blog/2016/04/cors.html" target="_blank" rel="noopener">阮一峰，跨域资源共享 CORS 详解</a></li>
+<li><a href="http://rubyer.me/blog/324/" target="_blank" rel="noopener">jsonp原理</a></li>
+<li><a href="http://www.cnblogs.com/rainman/archive/2011/02/20/1959325.html" target="_blank" rel="noopener">iframe跨域</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2017/08/08/css/grid-introduce/" rel="next" title="grid 布局简单 demo">
+                  <i class="fa fa-chevron-left"></i> grid 布局简单 demo
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2017/09/11/js-lib/vue-broadcast/" rel="prev" title="vue2.0版本的broadcat以及dispatch">
+                  vue2.0版本的broadcat以及dispatch <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#jsonp请求"><span class="nav-number">1.</span> <span class="nav-text">jsonp请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xhr2"><span class="nav-number">2.</span> <span class="nav-text">xhr2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后台代理方式"><span class="nav-number">3.</span> <span class="nav-text">后台代理方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iframe跨域"><span class="nav-number">4.</span> <span class="nav-text">iframe跨域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#综述"><span class="nav-number">5.</span> <span class="nav-text">综述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: 'eb674c7bb79ead107b31e03f0b518393',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="公司的设计开发协作流程由设计师按宽度750px（iPhone 6）做设计稿，开发者拿到750px标注图后使用一些方案适配调试设计师给的尺寸，移动端适配的话题并不会随着这种规范而能被无视，本篇就来探讨一下这些适配方案的特点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="H5手机端适配方案研究">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2016&#x2F;10&#x2F;01&#x2F;mobile-h5&#x2F;h5-adaptation&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="公司的设计开发协作流程由设计师按宽度750px（iPhone 6）做设计稿，开发者拿到750px标注图后使用一些方案适配调试设计师给的尺寸，移动端适配的话题并不会随着这种规范而能被无视，本篇就来探讨一下这些适配方案的特点。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;img.souche.com&#x2F;20161001&#x2F;png&#x2F;6685e4e1ed103709b09fb27dc6ef5faf.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;img.souche.com&#x2F;20161001&#x2F;png&#x2F;1560e718bea96228732a9062e359f95f.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;img.souche.com&#x2F;20161001&#x2F;png&#x2F;9114795947a792a87ab7febb06ab4843.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;img.souche.com&#x2F;20161001&#x2F;png&#x2F;f437397fe070cb8447d484f71500bb13.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;img.souche.com&#x2F;20161001&#x2F;png&#x2F;b6656f3fd7355f1eb2381594667f9da5.png">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.818Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;img.souche.com&#x2F;20161001&#x2F;png&#x2F;6685e4e1ed103709b09fb27dc6ef5faf.png">
+
+<link rel="canonical" href="http://everlose.github.io/2016/10/01/mobile-h5/h5-adaptation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>H5手机端适配方案研究 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/10/01/mobile-h5/h5-adaptation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          H5手机端适配方案研究
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-10-01 16:07:03" itemprop="dateCreated datePublished" datetime="2016-10-01T16:07:03+08:00">2016-10-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mobile-h5/" itemprop="url" rel="index">
+                    <span itemprop="name">mobile-h5</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">公司的设计开发协作流程由设计师按宽度750px（iPhone 6）做设计稿，开发者拿到750px标注图后使用一些方案适配调试设计师给的尺寸，移动端适配的话题并不会随着这种规范而能被无视，本篇就来探讨一下这些适配方案的特点。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><h3 id="CSS像素-CSS-pixels"><a href="#CSS像素-CSS-pixels" class="headerlink" title="CSS像素(CSS pixels)"></a>CSS像素(CSS pixels)</h3><p>这个是浏览器使用的抽象单位，用来精确度量网页上的内容。平时经常写的width:100px;height:100px;都是与设备无关的。</p>
+<h3 id="设备独立像素-device-independent-pixels-，也可以称为设备无关的逻辑像素"><a href="#设备独立像素-device-independent-pixels-，也可以称为设备无关的逻辑像素" class="headerlink" title="设备独立像素(device independent pixels)，也可以称为设备无关的逻辑像素"></a>设备独立像素(device independent pixels)，也可以称为设备无关的逻辑像素</h3><p>meta里面设置width=device-width，这个device-width就是设备独立像素</p>
+<p><img src="http://img.souche.com/20161001/png/6685e4e1ed103709b09fb27dc6ef5faf.png" alt=""></p>
+<p>在chrome里 看到的ip6为375x667，ip4为320x480等等都是设备独立像素，<code>它们在数值上与css数值是相等的</code>。而将meta里的viewport的initail-scale设置为1的意义就在于是css像素能与设备独立像素数值相等。</p>
+<h3 id="设备像素-device-pixels-，也可以称为物理像素"><a href="#设备像素-device-pixels-，也可以称为物理像素" class="headerlink" title="设备像素(device pixels )，也可以称为物理像素"></a>设备像素(device pixels )，也可以称为物理像素</h3><p><code>是显示屏的最小物理单位</code>，每一像素都包含自己的颜色、亮度。像素是没有大小的、是一个抽象概念、是一个相对单位。 关于像素有一个常见的错误理解：认为像素是一个宽高相等的小方块，并且的像素都是“那么大”，但是不知道这个宽高的具体数字。</p>
+<h3 id="分辨率"><a href="#分辨率" class="headerlink" title="分辨率"></a>分辨率</h3><p>泛指量测或显示系统对细节的分辨能力。以ip6手机屏幕为例，分辨率为750×1334，这是指屏幕纵向能显示1920个像素，横向能显示1080个像素</p>
+<h3 id="设备像素比，也成dpr"><a href="#设备像素比，也成dpr" class="headerlink" title="设备像素比，也成dpr"></a>设备像素比，也成dpr</h3><p>设备像素比(简称dpr)定义了物理像素和设备独立像素的对应关系，它的值可以按如下的公式的得到：</p>
+<p><code>设备像素比 = 物理像素 / 设备独立像素 // 在某一方向上，x方向或者y方向</code></p>
+<h2 id="适配方案1"><a href="#适配方案1" class="headerlink" title="适配方案1"></a>适配方案1</h2><p>描述：如果使viewport的initail-scale为1，且给的是ip6尺寸宽度为750px的设计稿。</p>
+<p>把chrome的控制台调到iPhone6，设备独立像素为375，设备像素比(dpr)为2，因此前端写元素时应该是<code>css写的尺寸(单位为px) ＝ 设计稿里的元素尺寸 ／ dpr</code>。</p>
+<p>问题：如果设计稿中给的是某边框线是1px，那么按照上述规则，就得设置这个边框为0.5px，但是部分机型不会支持小数点的px尺寸。</p>
+<p>为了得到极细致的真实1px单位的边框，衍生出了很多的解决办法，使用的比较多的有两种解决方案。其一为transform缩放，其二为动态viewport，不过第二种方法属于另一种适配方案。</p>
+<h3 id="transfrom方案"><a href="#transfrom方案" class="headerlink" title="transfrom方案"></a>transfrom方案</h3><p>可以搭配伪元素来使用，如果只是为了得到底边的话，那么设置为高度1px，然后缩放y轴为0.5。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.scale</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: relative;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.scale</span><span class="selector-pseudo">:after</span> &#123;</span><br><span class="line">    <span class="attribute">content</span>: <span class="string">""</span>;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">left</span>: <span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">border-bottom</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">-webkit-transform</span>: <span class="built_in">scaleY</span>(.5);</span><br><span class="line">    <span class="attribute">transform</span>: <span class="built_in">scaleY</span>(.5);</span><br><span class="line">    <span class="attribute">-webkit-transform-origin </span>:<span class="number">0</span> <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">transform-origin </span>:<span class="number">0</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>如果需要设置四边的话，则这么设置</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.scale</span><span class="selector-pseudo">:after</span>&#123;</span><br><span class="line">    <span class="attribute">content</span>: <span class="string">""</span>;</span><br><span class="line">    <span class="attribute">pointer-events</span>: none; <span class="comment">/* 防止点击触发 */</span></span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">200%</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">200%</span>;</span><br><span class="line">    <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">top</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">8px</span>;</span><br><span class="line">    <span class="attribute">border</span>:<span class="number">1px</span> solid <span class="number">#999</span>;</span><br><span class="line">    <span class="attribute">-webkit-transform</span>: <span class="built_in">scale</span>(.5);</span><br><span class="line">    <span class="attribute">transform</span>: <span class="built_in">scale</span>(.5);</span><br><span class="line">    <span class="attribute">-webkit-transform-origin</span>: <span class="number">0</span> <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">transform-origin</span>: <span class="number">0</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="适配方案2"><a href="#适配方案2" class="headerlink" title="适配方案2"></a>适配方案2</h2><p>采用动态viewport和rem的方式</p>
+<p>源码看如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">;(<span class="function"><span class="keyword">function</span>(<span class="params">win</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> h;</span><br><span class="line">    <span class="keyword">var</span> dpr = win.navigator.appVersion.match(<span class="regexp">/iphone/gi</span>)?win.devicePixelRatio:<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">var</span> scale = <span class="number">1</span> / dpr;</span><br><span class="line">    <span class="keyword">var</span> docEl = <span class="built_in">document</span>.documentElement;</span><br><span class="line">    <span class="keyword">var</span> metaEl = <span class="built_in">document</span>.createElement(<span class="string">'meta'</span>);</span><br><span class="line">    win.dpr = dpr;</span><br><span class="line">    docEl.setAttribute(<span class="string">'data-dpr'</span>, dpr);</span><br><span class="line">    metaEl.setAttribute(<span class="string">'name'</span>, <span class="string">'viewport'</span>);</span><br><span class="line">    metaEl.setAttribute(<span class="string">'content'</span>, <span class="string">'initial-scale='</span> + scale + <span class="string">', maximum-scale='</span> + scale + <span class="string">', minimum-scale='</span> + scale + <span class="string">', user-scalable=no'</span>);</span><br><span class="line">    docEl.firstElementChild.appendChild(metaEl);</span><br><span class="line">    win.rem = docEl.getBoundingClientRect().width / <span class="number">16</span>;</span><br><span class="line">    docEl.style.fontSize = win.rem + <span class="string">'px'</span>;</span><br><span class="line">&#125;)(<span class="built_in">window</span>);</span><br></pre></td></tr></table></figure>
+
+<p>基础思想就是设置根节点元素上得font-size，使之为十六分之一屏幕宽度(类似栅格系统，淘宝为1/10分屏宽，贝贝1/16屏宽)。在设置viewport为1/drp的值。</p>
+<p>iPhone6计算出的根节点元素的font-size为<code>750px/16=46.876px</code>，那么跟着设计稿的尺寸，css单位应该这么写：<code>css写的尺寸(单位为rem) ＝ 设计稿里的元素尺寸 ／ 46.875</code>。这种方案，页面上使用了rem单位的元素在不同倍率手机下css尺寸都不同，例如在iphone5里，css尺寸就是<code>设计稿元素尺寸 / 46.875 * 40</code>。</p>
+<p>然而事情还没有完，如果设计师希望能让大屏的情况显示更多的字，而非把字给这样放大了，那么字体则不能使用rem为单位。看下面的一段代码</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.px2px</span>(@<span class="keyword">name</span>, @px)&#123;</span><br><span class="line">    @&#123;<span class="selector-tag">name</span>&#125;: <span class="selector-tag">round</span>(@<span class="keyword">px</span> / <span class="number">2</span>) * <span class="number">1px</span>;</span><br><span class="line">    <span class="selector-attr">[data-dpr="2"]</span> &amp; &#123;</span><br><span class="line">        @&#123;name&#125;: @px * 1px;</span><br><span class="line">    &#125;</span><br><span class="line">    // for mx3</span><br><span class="line">    <span class="selector-attr">[data-dpr="2.5"]</span> &amp; &#123;</span><br><span class="line">        @&#123;name&#125;: round(@px * 2.5 / 2) * 1px;</span><br><span class="line">    &#125;</span><br><span class="line">    // for 小米note</span><br><span class="line">    <span class="selector-attr">[data-dpr="2.75"]</span> &amp; &#123;</span><br><span class="line">        @&#123;name&#125;: round(@px * 2.75 / 2) * 1px;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="selector-attr">[data-dpr="3"]</span> &amp; &#123;</span><br><span class="line">        @&#123;name&#125;: round(@px / 2 * 3) * 1px</span><br><span class="line">    &#125;</span><br><span class="line">    // for 三星note4</span><br><span class="line">    <span class="selector-attr">[data-dpr="4"]</span> &amp; &#123;</span><br><span class="line">        @&#123;name&#125;: @px * 2px;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.fontSize</span>(@<span class="keyword">px</span>) &#123;</span><br><span class="line">    <span class="selector-class">.px2px</span>(<span class="selector-tag">font-size</span>, @<span class="keyword">px</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用法为<code>.fontSize(设计稿里此元素的字体大小) ;</code>，这样就能得到不同倍率下正确的字体大小，不过此法仍然有一个问题，需要穷举出所有的dpr情况，android机子碎片化非常严重，所以总会有一些奇奇怪怪的机型效果不如意。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>日常的h5项目使用viewport的initail-scale为1，宽度设置配合百分比布局，1px问题使用transform方案会最方便。由于每种设备的设备独立像素不同，最终效果也不同，最后的视觉效果如下：</p>
+<img src="http://img.souche.com/20161001/png/1560e718bea96228732a9062e359f95f.png" width="325"/>
+
+<img src="http://img.souche.com/20161001/png/9114795947a792a87ab7febb06ab4843.png" width="325"/>
+
+<p>如果是电商的活动页这种对视觉效果比较严谨的，则使用rem和动态viewport方案，最终的视觉效果如下：</p>
+<img src="http://img.souche.com/20161001/png/f437397fe070cb8447d484f71500bb13.png" width="325"/>
+
+<img src="http://img.souche.com/20161001/png/b6656f3fd7355f1eb2381594667f9da5.png" width="325"/>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2016/08/05/js-lib/jqfree/" rel="next" title="jqfree">
+                  <i class="fa fa-chevron-left"></i> jqfree
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2016/10/02/other/hello-world/" rel="prev" title="Hello World">
+                  Hello World <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础概念"><span class="nav-number">1.</span> <span class="nav-text">基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CSS像素-CSS-pixels"><span class="nav-number">1.1.</span> <span class="nav-text">CSS像素(CSS pixels)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设备独立像素-device-independent-pixels-，也可以称为设备无关的逻辑像素"><span class="nav-number">1.2.</span> <span class="nav-text">设备独立像素(device independent pixels)，也可以称为设备无关的逻辑像素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设备像素-device-pixels-，也可以称为物理像素"><span class="nav-number">1.3.</span> <span class="nav-text">设备像素(device pixels )，也可以称为物理像素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分辨率"><span class="nav-number">1.4.</span> <span class="nav-text">分辨率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设备像素比，也成dpr"><span class="nav-number">1.5.</span> <span class="nav-text">设备像素比，也成dpr</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#适配方案1"><span class="nav-number">2.</span> <span class="nav-text">适配方案1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#transfrom方案"><span class="nav-number">2.1.</span> <span class="nav-text">transfrom方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#适配方案2"><span class="nav-number">3.</span> <span class="nav-text">适配方案2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: '1e8d3aa16fb91c02da382cf1e8f741b1',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

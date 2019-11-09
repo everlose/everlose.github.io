@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="focus on Js、CSS、Node...etc">
+<meta property="og:type" content="website">
+<meta property="og:title" content="el&#39;s blog">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;page&#x2F;8&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="focus on Js、CSS、Node...etc">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://everlose.github.io/page/8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: true,
+    isPost: false,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/node/npm-in-common-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/node/npm-in-common-use/" class="post-title-link" itemprop="url">npm 常用操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/node/" itemprop="url" rel="index">
+                    <span itemprop="name">node</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          最常用的
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/12/24/node/npm-in-common-use/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/os/iterm2-short-cut-key/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/os/iterm2-short-cut-key/" class="post-title-link" itemprop="url">iterm2 快捷键</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index">
+                    <span itemprop="name">os</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ol>
+<li>⌘ + 数字可在各tab标签来回切换，⌘ + → ／ ⌘ + ← 也是tab标签切换。</li>
+<li>选中即复制，在iterm2中选中内容就已经复制到了剪切板</li>
+<li>⌘ + f 查找内容</li>
+<li>⌘ + d 横着分屏 ／ ⌘ + [shift] + d 竖着分屏</li>
+<li>⌘ + r 清屏</li>
+<li>[ctrl] + u 清空当前行。</li>
+<li>[ctrl] + a 跳到行首，[ctrl] + e 跳到行尾，</li>
+<li>⌘ + ; 补全命令</li>
+<li>⌘ + shift ＋ h 列出剪切版历史</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/os/curl-demo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/os/curl-demo/" class="post-title-link" itemprop="url">curl 命令发送请求 demo</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index">
+                    <span itemprop="name">os</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          curl是linux下一个强大的http命令行工具。可以把它看作命令行的浏览器。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/12/24/os/curl-demo/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/os/mac-short-cut-key/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/os/mac-short-cut-key/" class="post-title-link" itemprop="url">mac快捷键及查看端口关闭程序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index">
+                    <span itemprop="name">os</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><ul>
+<li>查看桌面 F11</li>
+<li>HOME Command + &lt;-</li>
+<li>END Command + -&gt;</li>
+<li>锁屏 Shift + Control + 电源键 （Windows 下为Win+L）</li>
+<li>强制关闭程序 Command + Option + esc（Windows 下为Ctrl+Alt+Delete）</li>
+<li>shift + command + control + 4</li>
+</ul>
+<h2 id="查看端口"><a href="#查看端口" class="headerlink" title="查看端口"></a>查看端口</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsof -i tcp:&lt;port&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其中<port>需要替换成想要观察的端口，可以查看该端口被什么程序所使用。</p>
+<h2 id="退出程序"><a href="#退出程序" class="headerlink" title="退出程序"></a>退出程序</h2><p>跟据上面查看端口获取到进程的pid</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -9 &lt;pid&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这样就关闭了此程序</p>
+<h2 id="调出Activity-Monitor-进程监视器"><a href="#调出Activity-Monitor-进程监视器" class="headerlink" title="调出Activity Monitor(进程监视器)"></a>调出Activity Monitor(进程监视器)</h2><p>按下快捷键：Command+Option+Esc打开“强制退出应用程序”的窗口，然后选中需要退出的程序，再点右下方的“强制退出”即可。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://gold.xitu.io/post/586a303f8d6d810063e3ac0e" target="_blank" rel="noopener">https://gold.xitu.io/post/586a303f8d6d810063e3ac0e</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/os/mac-sys-file/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/os/mac-sys-file/" class="post-title-link" itemprop="url">介绍 Mac 系统中各个文件夹</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index">
+                    <span itemprop="name">os</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          再也没有 windows 中分区概念了
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/12/24/os/mac-sys-file/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/os/mac-tree/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/os/mac-tree/" class="post-title-link" itemprop="url">Mac 模拟 tree 命令</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index">
+                    <span itemprop="name">os</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>看到 github 上梳理 vue 项目文件结构时能输出下面的文件树形式，让我感觉很棒。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── Makefile</span><br><span class="line">├── README.md</span><br><span class="line">├── build</span><br><span class="line">│   ├── build-prompt.js</span><br><span class="line">│   ├── build.js</span><br><span class="line">│   ├── check-versions.js</span><br><span class="line">│   ├── dev-client.js</span><br><span class="line">│   ├── dev-server.js</span><br><span class="line">│   ├── publish-prompt.js</span><br><span class="line">│   ├── rollback.js</span><br><span class="line">│   ├── tag.js</span><br><span class="line">│   ├── utils.js</span><br><span class="line">│   ├── vue-loader.conf.js</span><br><span class="line">│   ├── webpack.base.conf.js</span><br><span class="line">│   ├── webpack.build.conf.js</span><br><span class="line">│   ├── webpack.dev.conf.js</span><br><span class="line">│   └── webpack.test.conf.js</span><br><span class="line">├── config</span><br><span class="line">│   ├── common.env.js</span><br><span class="line">│   ├── dev.env.js</span><br><span class="line">│   ├── index.js</span><br><span class="line">│   ├── local.env.js</span><br><span class="line">│   ├── prepub.env.js</span><br><span class="line">│   ├── prod.env.js</span><br><span class="line">│   ├── project.config.js</span><br><span class="line">│   └── test.env.js</span><br><span class="line">├── index.html</span><br><span class="line">├── package-lock.json</span><br><span class="line">├── package.json</span><br><span class="line">└── src</span><br><span class="line">    ├── api</span><br><span class="line">    ├── assets</span><br><span class="line">    ├── components</span><br><span class="line">    ├── dictionary</span><br><span class="line">    ├── directives</span><br><span class="line">    ├── pages</span><br><span class="line">    ├── utils</span><br><span class="line">    └── vuex</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>直接使用 tree 命令 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">brew install tree</span><br><span class="line"></span><br><span class="line"># 只输出两层并且忽略 node_modules 和 dist 文件夹</span><br><span class="line">tree -L 2 -I &apos;node_modules|dist&apos;</span><br></pre></td></tr></table></figure>
+
+<p>若 brew 安装不了tree，笔者也曾经卡了好久安装不上，还可以用 find 命令去模拟出 tree 命令的效果</p>
+<p>打印所有层级</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">print</span> | sed -e <span class="string">'s;[^/]*/;|____;g;s;____|; |;g'</span></span><br></pre></td></tr></table></figure>
+
+<p>当然你也可以选择忽略 node_modules 文件并可以指定输出层级。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -path  <span class="string">"*/node_modules"</span> -prune -o -depth 2 -<span class="built_in">print</span> | sed -e <span class="string">'s;[^/]*/;|____;g;s;____|; |;g'</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/os/vim-base-opt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/os/vim-base-opt/" class="post-title-link" itemprop="url">vim基本操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index">
+                    <span itemprop="name">os</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="从命令模式切换到文本输入模式："><a href="#从命令模式切换到文本输入模式：" class="headerlink" title="从命令模式切换到文本输入模式："></a>从命令模式切换到文本输入模式：</h2><ul>
+<li>i 在光标左侧输入文本</li>
+</ul>
+<h2 id="文本修改键，只适用于命令模式："><a href="#文本修改键，只适用于命令模式：" class="headerlink" title="文本修改键，只适用于命令模式："></a>文本修改键，只适用于命令模式：</h2><ul>
+<li>x 删除光标位置指定的字符</li>
+<li>dd 删除光标所在的行</li>
+<li>yy 复制光标所在行，再使用p命令，粘贴复制之处到光标所在行。</li>
+<li>u 撤销最近的修改</li>
+<li>r 替换光标位置上的一个字符</li>
+<li>. 重复上一次的修改</li>
+</ul>
+<h2 id="光标移动，只适用于命令模式"><a href="#光标移动，只适用于命令模式" class="headerlink" title="光标移动，只适用于命令模式"></a>光标移动，只适用于命令模式</h2><ul>
+<li>↑ 将光标向上移动一行</li>
+<li>→或[space] 将光标向右移动一位</li>
+<li>↓ 将光标向下移动一行</li>
+<li>←或[backspace] 将光标向左移动一位</li>
+<li>$ 将光标移动到当前行的行尾</li>
+<li>^ 将光标移动到当前行的行首</li>
+<li>w 将光标向右移动一个词组，到下一个词组的开头</li>
+<li>b 将光标向左移动一个词组，到前一个词组的开头</li>
+<li>e 将光标移到词组尾部。</li>
+<li>[Enter] 将光标移到下一行的行首</li>
+<li>[ctrl] + u 屏幕往后移动半页</li>
+<li>[ctrl] + d 屏幕往前移动半页</li>
+</ul>
+<h2 id="退出命令，除了ZZ命令外，其他的都以”-”开始，用-Enter-结束命令行"><a href="#退出命令，除了ZZ命令外，其他的都以”-”开始，用-Enter-结束命令行" class="headerlink" title="退出命令，除了ZZ命令外，其他的都以”:”开始，用[Enter]结束命令行"></a>退出命令，除了ZZ命令外，其他的都以”:”开始，用[Enter]结束命令行</h2><ul>
+<li>wq 保存文件，退出编辑器</li>
+<li>w 保存文件，不退出编辑器</li>
+<li>q 退出编辑器</li>
+<li>q! 不保存文件，退出编辑器</li>
+<li>ZZ 保存文件，退出编辑器</li>
+</ul>
+<h2 id="搜索命令，命令模式中使用"><a href="#搜索命令，命令模式中使用" class="headerlink" title="搜索命令，命令模式中使用"></a>搜索命令，命令模式中使用</h2><ul>
+<li>? 向前搜索指定字符串，搜索到后按n寻找下一个。</li>
+<li>/ 向后搜索指定字符串，搜索到后按n寻找下一个。</li>
+</ul>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><p>在vim里可用:help [命令]来查询在线帮助，以上命令在vi中同样可用。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/source-control/git-multi-remote/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/source-control/git-multi-remote/" class="post-title-link" itemprop="url">git 提交到多个远程仓库</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/source-control/" itemprop="url" rel="index">
+                    <span itemprop="name">source-control</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>假设我有两个仓库：</p>
+<p><a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:everlose/CSS3Practice.git</p>
+<p><a href="mailto:git@gitlab.com" target="_blank" rel="noopener">git@gitlab.com</a>:everlose/CSS3Practice.git</p>
+<p>我希望能再一份本地的工程里push代码能同步到两个仓库里。</p>
+<p>如果说push代码的指令如这般：<code>git push all -all</code></p>
+<h2 id="命令行操作"><a href="#命令行操作" class="headerlink" title="命令行操作"></a>命令行操作</h2><p>输入：<code>git remote add all git@gitlab.com:everlose/CSS3Practice.git</code></p>
+<p>输入：<code>git remote set-url --add all git@github.com:everlose/CSS3Practice.git</code></p>
+<p>提交的时候只要输入：<code>git push all -all</code>。就可以生效。结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[core]</span><br><span class="line">Saving password to keychain failed</span><br><span class="line">Identity added: /Users/everlose/.ssh/id_rsa (/Users/everlose/.ssh/id_rsa)</span><br><span class="line">Counting objects: 3, <span class="keyword">done</span>.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">[core]</span><br><span class="line">Compressing objects: 100% (3/3), <span class="keyword">done</span>.</span><br><span class="line">Writing objects: 100% (3/3), 306 bytes | 0 bytes/s, <span class="keyword">done</span>.</span><br><span class="line">Total 3 (delta 2), reused 0 (delta 0)</span><br><span class="line">To git@gitlab.com:everlose/FEDPractice.git</span><br><span class="line">   643bfce..e0fd8f3  master -&gt; master</span><br><span class="line">Branch master <span class="built_in">set</span> up to track remote branch master from all.</span><br><span class="line">[core]</span><br><span class="line">Warning: Permanently added the RSA host key <span class="keyword">for</span> IP address <span class="string">'192.30.252.120'</span> to the list of known hosts.</span><br><span class="line">Counting objects: 3, <span class="keyword">done</span>.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">Compressing objects: 100% (3/3), <span class="keyword">done</span>.</span><br><span class="line">Writing objects: 100% (3/3), 306 bytes | 0 bytes/s, <span class="keyword">done</span>.</span><br><span class="line">Total 3 (delta 2), reused 0 (delta 0)</span><br><span class="line">To git@github.com:everlose/FEDPractice.git</span><br><span class="line">   643bfce..e0fd8f3  master -&gt; master</span><br><span class="line">Branch master <span class="built_in">set</span> up to track remote branch master from all.</span><br></pre></td></tr></table></figure>
+
+<p>它的原理同下，都是修改了.git/config下的配置。</p>
+<h2 id="直接配置-git-config文件"><a href="#直接配置-git-config文件" class="headerlink" title="直接配置.git/config文件"></a>直接配置.git/config文件</h2><p>进入项目的根目录，输入：vim .git/config。</p>
+<p>添加如下一行的远程仓库配置，有多少个远程库,就配置多少个url即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[remote <span class="string">"all"</span>]  </span><br><span class="line">    url = git@gitlab.com:everlose/CSS3Practice.git </span><br><span class="line">    url = git@github.com:everlose/CSS3Practice.git</span><br></pre></td></tr></table></figure>
+
+<p>提交的时候只要输入：<code>git push all -all</code>。就可以生效。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://blog.csdn.net/isea533/article/details/41382699" target="_blank" rel="noopener">csdn：isea533的博客</a></li>
+<li><a href="http://stackoverflow.com/questions/5785549/able-to-push-to-all-git-remotes-with-the-one-command" target="_blank" rel="noopener">stackoverflow：Able to push to all git remotes with the one command?</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/source-control/git-remove-all-commit-history/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/source-control/git-remove-all-commit-history/" class="post-title-link" itemprop="url">git 删除所有历史 commit 记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/source-control/" itemprop="url" rel="index">
+                    <span itemprop="name">source-control</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>创建一个叫new_start的分支，改分支没有任何历史记录，但是所有文件都会原封不动的存在。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout --orphan new_start</span><br></pre></td></tr></table></figure>
+
+<p>然后重新开始提交</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">'新的纪录'</span></span><br><span class="line">git push origin new_start</span><br></pre></td></tr></table></figure>
+
+<p>然后去github上项目主页面-进入项目主页面-右边导航setting-左边导航branches设置默认分支，最后去删除旧分支，并删除远程旧分支</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git branch -d master</span><br><span class="line">git push origin --delete master</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/24/source-control/git-tag-base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/24/source-control/git-tag-base/" class="post-title-link" itemprop="url">git tag 基本操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">2016-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/source-control/" itemprop="url" rel="index">
+                    <span itemprop="name">source-control</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          tag 标签可以针对某一时间点的版本做标记，常用于版本发布。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/12/24/source-control/git-tag-base/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+  </div>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+</body>
+</html>

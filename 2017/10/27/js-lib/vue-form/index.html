@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="不要在一个 vue components 上直接绑定大量数据，如果这么做了，就像本例一般 update 的时候产生卡顿感。">
+<meta name="keywords" content="vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记vue大型表单项目的一个性能问题">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2017&#x2F;10&#x2F;27&#x2F;js-lib&#x2F;vue-form&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="不要在一个 vue components 上直接绑定大量数据，如果这么做了，就像本例一般 update 的时候产生卡顿感。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-10-26&#x2F;99045022.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-10-26&#x2F;49459645.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-10-26&#x2F;45559864.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-10-26&#x2F;12172972.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-10-26&#x2F;88158757.jpg">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.816Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-10-26&#x2F;99045022.jpg">
+
+<link rel="canonical" href="http://everlose.github.io/2017/10/27/js-lib/vue-form/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>记vue大型表单项目的一个性能问题 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2017/10/27/js-lib/vue-form/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          记vue大型表单项目的一个性能问题
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-10-27 10:32:34" itemprop="dateCreated datePublished" datetime="2017-10-27T10:32:34+08:00">2017-10-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js-lib/" itemprop="url" rel="index">
+                    <span itemprop="name">js-lib</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">不要在一个 vue components 上直接绑定大量数据，如果这么做了，就像本例一般 update 的时候产生卡顿感。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="问题场景"><a href="#问题场景" class="headerlink" title="问题场景"></a>问题场景</h2><p>身为一个表单表格工程师，自然日复一日的写着表单表格，本以为已经没啥难点的时候转眼间就来了一个有意思的情况，在超大量 数据绑定在 vue 的时候出现了表单操作起来卡顿的情况。</p>
+<p>这里先贴上<a href="https://github.com/everlose/more-form-demo/tree/v1.0.1" target="_blank" rel="noopener">本项目出现的情况演示的 github 上的地址，tag1.0.1</a></p>
+<p>如图所见，当在 input 输入数据的时候，连续输入会感觉明显的延迟。</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-10-26/99045022.jpg" alt=""></p>
+<p>那么，这到底是怎么回事？</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>上述的表单数据项修改频繁由后端返回，于是在前端需要渲染从后端返回的 68kb 的一个 JSON 数据串，包括所有配置表单项以及其可能的选项值，<a href="https://github.com/everlose/more-form-demo/blob/v1.0.1/src/data.json" target="_blank" rel="noopener">数据见这里</a></p>
+<p>核心渲染是有这么一段</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"basic-info ct-form"</span> <span class="attr">v-for</span>=<span class="string">"(config, configIndex) in formConfig"</span> <span class="attr">:key</span>=<span class="string">"configIndex"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h3</span> <span class="attr">class</span>=<span class="string">"form__title"</span>&gt;</span>&#123;&#123;config.title&#125;&#125;<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">el-form</span> <span class="attr">class</span>=<span class="string">"form-content"</span> <span class="attr">ref</span>=<span class="string">"form"</span> <span class="attr">label-width</span>=<span class="string">"150px"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">el-form-item</span></span></span><br><span class="line"><span class="tag">            <span class="attr">class</span>=<span class="string">"basic-form-item"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">v-for</span>=<span class="string">"(item, itemIndex) in config.formItems"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">:key</span>=<span class="string">"itemIndex"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">:prop</span>=<span class="string">"item.code"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">:label</span>=<span class="string">"item.name"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">:required</span>=<span class="string">"item.required"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">:rules</span>=<span class="string">"item.rules"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">el-radio-group</span></span></span><br><span class="line"><span class="tag">                <span class="attr">v-if</span>=<span class="string">"item.type === 'radio'"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">v-model</span>=<span class="string">"formData[item.code]"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">el-radio</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">v-for</span>=<span class="string">"(option, radioIndex) in formOptions[item.optionCode]"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">:key</span>=<span class="string">"option.value"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">:label</span>=<span class="string">"option.value"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">:disabled</span>=<span class="string">"item.disabled"</span>&gt;</span></span><br><span class="line">                    &#123;&#123; option.label &#125;&#125;</span><br><span class="line">                <span class="tag">&lt;/<span class="name">el-radio</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">el-radio-group</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">el-input</span></span></span><br><span class="line"><span class="tag">                <span class="attr">v-else-if</span>=<span class="string">"item.type === 'input'"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:class</span>=<span class="string">"&#123; longInput: item.isLongInput &#125;"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:placeholder</span>=<span class="string">"item.placeholder || '请输入'"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">v-model</span>=<span class="string">"formData[item.code]"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:label</span>=<span class="string">"item.label"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:disabled</span>=<span class="string">"item.disabled"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:maxlength</span>=<span class="string">"item.maxLength"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">el-input</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">el-select</span></span></span><br><span class="line"><span class="tag">                <span class="attr">v-else-if</span>=<span class="string">"item.type === 'select'"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">v-model</span>=<span class="string">"formData[item.code]"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:disabled</span>=<span class="string">"item.disabled"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">:placeholder</span>=<span class="string">"item.placeholder || '请选择'"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">el-option</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">v-for</span>=<span class="string">"(option, optionsIndex) in formOptions[item.optionCode]"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">:key</span>=<span class="string">"option.value"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">:label</span>=<span class="string">"option.label"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">:value</span>=<span class="string">"option.value"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">el-option</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">el-select</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">el-form-item</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">el-form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这就是一个简单的双层遍历渲染所有表单配置项的模版代码，其中的 formConfig 正是所有配置表单项，数据量极多。formOptions 挂载了所有表单选项值，也是动辄几千项。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>正当我对着这么高的操作延时发愁的时候，组里一个大佬提醒我，可能是 Vue.prototype._update 这个触发的太频繁了。</p>
+<p>我急忙找到这一段打了个断点调试</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-10-26/49459645.jpg" alt=""></p>
+<p>Vue.prototype._update 这函数里触发的是 VNode 虚拟节点的比对更新，打断点调试后发现实际上这是一个循环，在控制台里输出 <code>this.$el</code> 的时候能得到正在深度遍历中的节点，沿着根结点 App（也是 formConfig 数据绑定的作用域） 开始直到具体触发输入的那个表单元素。</p>
+<p>在本项目里是使用了遍历输出所有的表单元素，并且当前组件的作用域是直接挂在根结点上的，是否就是这个遍历引发了如此高的延时呢？于是我找到上图右侧的调用堆栈，发现正是 <code>flushSchedulerQueue</code> 函数写着一个 for 循环。</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-10-26/45559864.jpg" alt=""></p>
+<p>在 <code>flushSchedulerQueue</code> 函数中的 for 循环里头尾插入代码来获取耗费时间。</p>
+<p>结果得知输入时的延迟大概在 300ms 之上。</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-10-26/12172972.jpg" alt=""></p>
+<p>似乎问题就找到了，<code>flushSchedulerQueue</code> 函数针对 data 中数据的修改把 watcher 推送进队列里在更新，这一循环耗费的时间比较长。</p>
+<h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>其实早在调试 <code>Vue.prototype._update</code> 函数就初见端倪，循环中的 <code>this.$el</code> 从当前组件的根部开始深度遍历，遍历了太多次，那么只要想办法缩小当前组件所绑定的数据量就解决了。</p>
+<p>于是核心代码调整为</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"basic-info ct-form"</span> <span class="attr">v-for</span>=<span class="string">"(config, configIndex) in formConfig"</span> <span class="attr">:key</span>=<span class="string">"configIndex"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">edit-form</span></span></span><br><span class="line"><span class="tag">        <span class="attr">:config</span>=<span class="string">"config"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">:data</span>=<span class="string">"formData"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">:options</span>=<span class="string">"formOptions"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">edit-form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>只是用一个 edit-form 包裹刚刚所有的 el-form-item 的渲染代码就解决了，再次调试 <code>Vue.prototype._update</code> 得出遍历节点 <code>this.$el</code> 已经变为下图所示的 <code>div.edit-form</code> 了，<code>flushSchedulerQueue</code> 函数 for 循环的延迟也变为 10ms 左右</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-10-26/88158757.jpg" alt=""></p>
+<p>修复版的代码在2.0.0的tag上，<a href="https://github.com/everlose/more-form-demo/tree/v2.0.0" target="_blank" rel="noopener">这里贴上链接</a></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>本质上这就是一个原则，最好不要在一个vue组件上直接绑定如此多的数据，如果有大量数据请分多个组件绑定。这么浅尝辄止实在让人不够尽兴，于是这里贴上 Vue.prototype._update 前的关键部分调用堆栈以及其函数作用。</p>
+<p>找到项目中 node_modules 下的 vue.esm.js</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># 往input里输入将会触发model data的更新</span><br><span class="line">978 set: function reactiveSetter (newVal)</span><br><span class="line"># 订阅器dep是数据绑定和视图更新的关键，这里触发去通知相关视图的更新</span><br><span class="line">994 dep.notify();</span><br><span class="line">673 Dep.prototype.notify</span><br><span class="line"># notify函数里的subs实际上是Watcher对象的实例，这里触发视图更新操作</span><br><span class="line">677 subs[i].update(); subs实际上是包裹watcher的数组</span><br><span class="line">3093 Watcher.prototype.update</span><br><span class="line"># 把watcher塞进一个队列里，这里是和异步更新视图有关。</span><br><span class="line">3100 queueWatcher(this);</span><br><span class="line">2945 function queueWatcher (watcher) push到队列里</span><br><span class="line"># nextTick是具体做异步更新的部分</span><br><span class="line">2963 nextTick(flushSchedulerQueue); </span><br><span class="line">1778 function nextTick (cb, ctx)</span><br><span class="line"># 异步操作实际上是原生 H5 MessageChannel API 通道通信来推送消息来实现变化。</span><br><span class="line">1738 port.postMessage(1); </span><br><span class="line"></span><br><span class="line"># 注意在异步操作中，最终传入的回调函数被执行来进行下面视图的更新。这里是执行一个任务调度队列的调度过程，需要循环遍历。</span><br><span class="line">2856 function flushSchedulerQueue</span><br><span class="line">3108 Watcher.prototype.run</span><br><span class="line"># Evaluate the getter, and re-collect dependencies.</span><br><span class="line">3043 Watcher.prototype.get</span><br><span class="line"># watcher中的getter的name就叫updateComponent，于是被执行</span><br><span class="line">2689 updateComponent</span><br><span class="line">2690 vm._update(vm._render(), hydrating);</span><br><span class="line"># 进入vue的生命周期中的update函数</span><br><span class="line">2548 Vue.prototype._update</span><br><span class="line"># patch做的是vnode的节点比对，最终把新的vnode结构渲染到具体视图，不再多做描述。</span><br><span class="line">2572 vm.$el = vm.__patch__(prevVnode, vnode);</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/vue/" rel="tag"># vue</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2017/10/02/source-control/remote-rollback/" rel="next" title="git 远端回滚操作">
+                  <i class="fa fa-chevron-left"></i> git 远端回滚操作
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2017/11/03/javascript/debounce-and-throttling/" rel="prev" title="防抖和节流函数">
+                  防抖和节流函数 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题场景"><span class="nav-number">1.</span> <span class="nav-text">问题场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码"><span class="nav-number">2.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路"><span class="nav-number">3.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决"><span class="nav-number">4.</span> <span class="nav-text">解决</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: 'd7d1ea8ed08f814f7a57146929483aa8',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="块格式化上下文（block formatting context） 是页面 CSS视觉渲染的一部分。它是用于决定块盒子的布局及浮动相互影响的一个区域">
+<meta name="keywords" content="css 2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BFC块级格式上下文简介">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2016&#x2F;12&#x2F;08&#x2F;css&#x2F;css-bfc&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="块格式化上下文（block formatting context） 是页面 CSS视觉渲染的一部分。它是用于决定块盒子的布局及浮动相互影响的一个区域">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;public&#x2F;16-12-7&#x2F;56454235.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;public&#x2F;16-12-7&#x2F;85569112.jpg">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.805Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;public&#x2F;16-12-7&#x2F;56454235.jpg">
+
+<link rel="canonical" href="http://everlose.github.io/2016/12/08/css/css-bfc/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>BFC块级格式上下文简介 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/12/08/css/css-bfc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          BFC块级格式上下文简介
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-12-08 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-08T00:00:00+08:00">2016-12-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/css/" itemprop="url" rel="index">
+                    <span itemprop="name">css</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">块格式化上下文（block formatting context） 是页面 CSS视觉渲染的一部分。它是用于决定块盒子的布局及浮动相互影响的一个区域</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>块级格式上下文（Block formatting context）</p>
+<h2 id="普通流-Normal-Flow"><a href="#普通流-Normal-Flow" class="headerlink" title="普通流(Normal Flow)"></a>普通流(Normal Flow)</h2><p>在普通流中，元素按照其在 HTML 中的先后位置至上而下布局，在这个过程中，行内元素水平排列，直到当行被占满然后换行，块级元素则会被渲染为完整的一个新行， 除非另外指定，否则所有元素默认都是普通流定位，也可以说，普通流中元素的位置由该元素在 HTML 文档中的位置决定。</p>
+<h2 id="浮动-Floats"><a href="#浮动-Floats" class="headerlink" title="浮动 (Floats)"></a>浮动 (Floats)</h2><p>在浮动布局中，元素首先按照普通流的位置出现，然后根据浮动的方向尽可能的向左边或右边偏移，其效果与印刷排版中的文本环绕相似。</p>
+<h2 id="绝对定位-Absolute-Positioning"><a href="#绝对定位-Absolute-Positioning" class="headerlink" title="绝对定位 (Absolute Positioning)"></a>绝对定位 (Absolute Positioning)</h2><p>在绝对定位布局中，元素会整体脱离普通流，因此绝对定位元素不会对其兄弟元素造成影响（如果看了上文的童鞋，会发现这点与浮动元素会影响兄弟元素是不同的），而元素具体的位置由绝对定位的坐标决定。 </p>
+<p>BFC 正是属于普通流的，因此它对兄弟元素也不会造成什么影响。</p>
+<h2 id="什么是BFC"><a href="#什么是BFC" class="headerlink" title="什么是BFC?"></a>什么是BFC?</h2><p>块格式化上下文（block formatting context） 是页面 CSS视觉渲染的一部分。它是用于决定块盒子的布局及浮动相互影响的一个区域。 – MDN 块格式上下文</p>
+<p>我的理解是，BFC是一个环境，在这个环境中的元素不会影响到其他环境中的布局，也就是说，处于不同BFC中的元素是不会互相干扰的。</p>
+<h2 id="BFC的触发条件"><a href="#BFC的触发条件" class="headerlink" title="BFC的触发条件"></a>BFC的触发条件</h2><ul>
+<li>根元素或其它包含它的元素</li>
+<li>浮动元素，float除none以外的值</li>
+<li>绝对定位元素 (元素的 position 为 absolute 或 fixed)</li>
+<li>display为以下其中之一的值：inline-block,table-cell,table-caption</li>
+<li>overflow 的值不为 visible的元素</li>
+<li>弹性盒子 flex boxes (元素的 display: flex 或 inline-flex)</li>
+</ul>
+<p>其中，最常见的就是overflow:hidden、float:left/right、position:absolute。也就是说，每次看到这些属性的时候，就代表了该元素以及创建了一个BFC了。</p>
+<h2 id="BFC的特性"><a href="#BFC的特性" class="headerlink" title="BFC的特性"></a>BFC的特性</h2><ul>
+<li>内部的盒会在垂直方向一个接一个排列（可以看作BFC中有一个的常规流）；</li>
+<li>处于同一个BFC中的元素相互影响，可能会发生margin collapse；</li>
+<li>每个元素的margin box的左边，与容器块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此；</li>
+<li>BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素，反之亦然；</li>
+<li>计算BFC的高度时，考虑BFC所包含的所有元素，连浮动元素也参与计算；</li>
+<li>浮动盒区域不叠加到BFC上；</li>
+</ul>
+<h2 id="BFC有什么用？"><a href="#BFC有什么用？" class="headerlink" title="BFC有什么用？"></a>BFC有什么用？</h2><h3 id="阻止外边距折叠"><a href="#阻止外边距折叠" class="headerlink" title="阻止外边距折叠"></a>阻止外边距折叠</h3><p>两个相连的块级元素在垂直上的外边距会发生叠加，有些把这种情况看作是bug，但我觉得可能是出于段落排版的考虑，为了令行间距一致才有的这一特性。我们先来看看例子：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>first<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>second<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">*&#123;margin: 0px;padding: 0px&#125;</span><br><span class="line">p &#123;</span><br><span class="line">    color: red;</span><br><span class="line">    background: #eee;</span><br><span class="line">    width: 100px;</span><br><span class="line">    height: 100px;</span><br><span class="line">    line-height: 100px;</span><br><span class="line">    text-align: center;</span><br><span class="line">    margin: 10px;</span><br><span class="line">    border: solid 1px red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/public/16-12-7/56454235.jpg" alt=""></p>
+<p>从上面可以看出，我们给两个p元素都设置 margin，但中间的间距却发生了折叠。然后举个BFC的例子：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.ele&#123;</span><br><span class="line">    overflow: hidden;</span><br><span class="line">    border: solid 1px red;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"ele"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>first<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"ele"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>second<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/public/16-12-7/85569112.jpg" alt=""></p>
+<p>从上面可以看出，我们为每个div元素设置 overflow 的值为hidden，产生一个块级格式上下文，因为外边距不会相互重叠。</p>
+<h3 id="BFC可以包含浮动的元素"><a href="#BFC可以包含浮动的元素" class="headerlink" title="BFC可以包含浮动的元素"></a>BFC可以包含浮动的元素</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span> = <span class="string">"box"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>= <span class="string">"floatL"</span>&gt;</span>float<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>= <span class="string">"floatL"</span>&gt;</span>float<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="tag">&lt;<span class="name">br</span> <span class="attr">style</span>=<span class="string">"clear:both"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span> = <span class="string">"box BFC"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>= <span class="string">"floatL"</span>&gt;</span>float<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>= <span class="string">"floatL"</span>&gt;</span>float<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">*&#123;margin: 0px;padding: 0px&#125;</span><br><span class="line">.floatL&#123;</span><br><span class="line">    float: left;</span><br><span class="line">    width: 100px;</span><br><span class="line">    height: 100px;</span><br><span class="line">    background-color: red;</span><br><span class="line">    text-align: center;</span><br><span class="line">    line-height: 100px;</span><br><span class="line">&#125;</span><br><span class="line">.box&#123;</span><br><span class="line">    border: 1px solid red;</span><br><span class="line">    width: 300px;</span><br><span class="line">    margin: 100px;</span><br><span class="line">    padding: 20px;</span><br><span class="line">&#125;</span><br><span class="line">.BFC&#123;</span><br><span class="line">    overflow: hidden;</span><br><span class="line">    *zoom: 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从运行结果可以看出，如果块级元素里面包含着浮动元素会发生高度塌陷，但是将它变成一个BFC后，BFC在计算高度时会自动将浮动元素计算在内。</p>
+<h3 id="BFC可以阻止元素被浮动元素覆盖"><a href="#BFC可以阻止元素被浮动元素覆盖" class="headerlink" title="BFC可以阻止元素被浮动元素覆盖"></a>BFC可以阻止元素被浮动元素覆盖</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box1"</span>&gt;</span>box1<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box2"</span>&gt;</span>box2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">*&#123;margin: 0px; padding: 0px&#125;</span><br><span class="line"> </span><br><span class="line">.box1&#123;</span><br><span class="line">    width: 100px;</span><br><span class="line">    height: 100px;</span><br><span class="line">    line-height: 100px;</span><br><span class="line">    text-align: center;</span><br><span class="line">    background-color: rgba(0, 0, 255, 0.5);</span><br><span class="line">    border: 1px solid #000;</span><br><span class="line">    float: left;</span><br><span class="line">&#125;</span><br><span class="line">.box2&#123;</span><br><span class="line">    width: 200px;</span><br><span class="line">    height: 200px;</span><br><span class="line">    line-height: 100px;</span><br><span class="line">    text-align: center;</span><br><span class="line">    background-color: rgba(255, 0, 0, 0.5);</span><br><span class="line">    border: 1px solid #000;</span><br><span class="line">    /* overflow: hidden; */</span><br><span class="line">    /* *zoom: 1; */</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面看出，当元素浮动后，会与后面的块级元素产生相互覆盖。那怎么解决这个问题，只要为后面的元素创建一个BFC。添加 overflow 属性到 box2 上。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">overflow</span>: <span class="selector-tag">hidden</span>;</span><br><span class="line">*<span class="selector-tag">zoom</span>: 1;</span><br></pre></td></tr></table></figure>
+
+<p>这样子阻止了浮动元素重叠的问题。</p>
+<h3 id="BFC与-hasLayout"><a href="#BFC与-hasLayout" class="headerlink" title="BFC与 hasLayout"></a>BFC与 hasLayout</h3><p>除了使用 overflow: hidden 触发 BFC 外，还使用了一个 *zomm: 1 的属性，这是 IEhack ，因为 IE6-7 并不支持 W3C 的 BFC ，而是使用私有属性 hasLayout 。从表现上来说， hasLayout 跟 BFC 很相似，只是 hasLayout 自身存在很多问题，导致了 IE6-7 中一系列的 bug 。触发 hasLayout 的条件与触发 BFC 有些相似，推荐为元素设置 IE 特有的 CSS 属性 zoom: 1 触发 hasLayout ， zoom 用于设置或检索元素的缩放比例，值为“1”即使用元素的实际尺寸，使用 zoom: 1 既可以触发 hasLayout 又不会对元素造成其他影响，相对来说会更为方便。</p>
+<p>清除浮动</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//利用伪元素清除浮动</span><br><span class="line"><span class="selector-class">.clearfix</span><span class="selector-pseudo">:after</span> &#123;</span><br><span class="line">     <span class="attribute">content</span>: <span class="string">"."</span>; </span><br><span class="line">     <span class="attribute">display</span>: block; </span><br><span class="line">     <span class="attribute">height</span>: <span class="number">0</span>; </span><br><span class="line">     <span class="attribute">visibility</span>: hidden; </span><br><span class="line">     <span class="attribute">clear</span>: both; </span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.clearfix</span> &#123; </span><br><span class="line">    *zoom: 1; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/css-2/" rel="tag"># css 2</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2016/12/07/css/css-next/" rel="next" title="css next">
+                  <i class="fa fa-chevron-left"></i> css next
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2016/12/24/tcp-http/visit-site-flow/" rel="prev" title="访问站点流程">
+                  访问站点流程 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#普通流-Normal-Flow"><span class="nav-number">1.</span> <span class="nav-text">普通流(Normal Flow)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浮动-Floats"><span class="nav-number">2.</span> <span class="nav-text">浮动 (Floats)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绝对定位-Absolute-Positioning"><span class="nav-number">3.</span> <span class="nav-text">绝对定位 (Absolute Positioning)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是BFC"><span class="nav-number">4.</span> <span class="nav-text">什么是BFC?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BFC的触发条件"><span class="nav-number">5.</span> <span class="nav-text">BFC的触发条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BFC的特性"><span class="nav-number">6.</span> <span class="nav-text">BFC的特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BFC有什么用？"><span class="nav-number">7.</span> <span class="nav-text">BFC有什么用？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#阻止外边距折叠"><span class="nav-number">7.1.</span> <span class="nav-text">阻止外边距折叠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BFC可以包含浮动的元素"><span class="nav-number">7.2.</span> <span class="nav-text">BFC可以包含浮动的元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BFC可以阻止元素被浮动元素覆盖"><span class="nav-number">7.3.</span> <span class="nav-text">BFC可以阻止元素被浮动元素覆盖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BFC与-hasLayout"><span class="nav-number">7.4.</span> <span class="nav-text">BFC与 hasLayout</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: '64a30718a4ef5ddcdf4e6891fb1f656f',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="JS 做一个哈希表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="散列表(哈希表)的实现">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2019&#x2F;11&#x2F;09&#x2F;alorigam&#x2F;hash-js&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="JS 做一个哈希表">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;note.youdao.com&#x2F;yws&#x2F;res&#x2F;16157&#x2F;C4787981899847E4A1F742927AD7D3DD">
+<meta property="og:image" content="http:&#x2F;&#x2F;note.youdao.com&#x2F;yws&#x2F;res&#x2F;16170&#x2F;F9F56E8A0D5E4CE18DDB60DA27257614">
+<meta property="og:image" content="http:&#x2F;&#x2F;note.youdao.com&#x2F;yws&#x2F;res&#x2F;16201&#x2F;D225FE8428D24DDC86049D574C9D35FF">
+<meta property="og:image" content="http:&#x2F;&#x2F;note.youdao.com&#x2F;yws&#x2F;res&#x2F;16207&#x2F;8D1F626E65BE407B84413287BE6D2B4D">
+<meta property="og:updated_time" content="2019-11-09T09:26:36.768Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;note.youdao.com&#x2F;yws&#x2F;res&#x2F;16157&#x2F;C4787981899847E4A1F742927AD7D3DD">
+
+<link rel="canonical" href="http://everlose.github.io/2019/11/09/alorigam/hash-js/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>散列表(哈希表)的实现 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2019/11/09/alorigam/hash-js/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          散列表(哈希表)的实现
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2019-11-09 17:26:24 / 修改时间：17:26:36" itemprop="dateCreated datePublished" datetime="2019-11-09T17:26:24+08:00">2019-11-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/alorigam/" itemprop="url" rel="index">
+                    <span itemprop="name">alorigam</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">JS 做一个哈希表</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h2><p>在真实世界中，我们描述一个事物最常用的方式是使用属性-值（key-value）这样的键值对数据，面向对象编程中对象的定义和js中的对象都是这种模式。比如我们描述一个人是这样的：</p>
+<p><img src="http://note.youdao.com/yws/res/16157/C4787981899847E4A1F742927AD7D3DD" alt="image"></p>
+<h3 id="那在计算机中怎么保存这样的数据呢？"><a href="#那在计算机中怎么保存这样的数据呢？" class="headerlink" title="那在计算机中怎么保存这样的数据呢？"></a>那在计算机中怎么保存这样的数据呢？</h3><p>开数组存储，并把键名和数组下标按一定程度联系起来，以用特定的码表（如ASCII）进行转换。变换下面这样</p>
+<p><img src="http://note.youdao.com/yws/res/16170/F9F56E8A0D5E4CE18DDB60DA27257614" alt="image"></p>
+<p>若依照上图，开一个10010长度的数组，全部容纳此对象，则就可以实现查找一遍得出值的目的。</p>
+<p>但由于键名长度不一，所以转换后的下标的值也相差巨大，个数不确定，也就意味着下标的个数也有很大的范围，甚至无穷多，就有了下面的问题：</p>
+<ul>
+<li>怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？</li>
+<li>如何处理下标冲突呢？</li>
+</ul>
+<h3 id="怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？"><a href="#怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？" class="headerlink" title="怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？"></a>怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？</h3><p>若直接取键名的所有字母 Ascii 码来构建数组长度，则是一个极大的浪费，必须针对此数据进行处理，有三种方式</p>
+<p>1，除法散列法。</p>
+<p>最直观的一种，公式：index = key % 16。这样取得的下标参见下面的图</p>
+<p><img src="http://note.youdao.com/yws/res/16201/D225FE8428D24DDC86049D574C9D35FF" alt="image"></p>
+<p>2，平方散列法。</p>
+<p>因为乘法的运算要比除法来得省时，所以我们考虑把除法换成乘法和一个位移操作。公式：index = (key * key) &gt;&gt; 28。</p>
+<p>如果数值分配比较均匀的话这种方法能得到不错的结果，另外key如果很大，key * key会发生溢出。但我们这个乘法不关心溢出，因为我们根本不是为了获取相乘结果，而是为了获取index。</p>
+<p>3，斐波那契（Fibonacci）散列法</p>
+<p>平方散列法的缺点是显而易见的，所以我们能不能找出一个理想的乘数，而不是拿value本身当作乘数呢？答案是肯定的。</p>
+<p>对于16位整数而言，这个乘数是40503，对于32位整数（JS中的Number是64位的，但在位操作时，会转化为32位整数处理，最后结果再转化位64位浮点数）而言，这个乘数是2654435769，对于64位整数而言，这个乘数是11400714819323198485</p>
+<p>这几个“理想乘数”是如何得出来的呢？这跟一个法则有关，叫黄金分割法则，而描述黄金分割法则的最经典表达式无疑就是著名的斐波那契数列，即如此形式的序列：0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144,233, 377, 610， 987, 1597, 2584, 4181, 6765, 10946，…。</p>
+<p>对我们常见的32位整数而言，公式(&gt;&gt;&gt;是JS的无符号右移操作，得到的都是整数)：index = (key* 2654435769) &gt;&gt;&gt; 28。32位移动28位，剩下只有4位，数值也就在0～15之间。</p>
+<h3 id="如何处理冲突的下标"><a href="#如何处理冲突的下标" class="headerlink" title="如何处理冲突的下标"></a>如何处理冲突的下标</h3><p>还是上面这个例子，29和69发生了冲突，但是我们可以将他们组成一个链表，链表的头部放在数组中，得到。链表结构中，每个元素（除单向链表的尾部）都包含了相连元素的内存地址和本身的值，上文中的冲突放入一个链表中，可以得到这样的结构：</p>
+<p><img src="http://note.youdao.com/yws/res/16207/8D1F626E65BE407B84413287BE6D2B4D" alt="image"></p>
+<p>最终得到的这个数据结构，也就是我们常说哈希表了。这种将数组与链表结合生成哈希表的方法，叫拉链法。</p>
+<p>此外还有其他策略如下</p>
+<p>1）拉链法变种。由于链表的查找需要遍历，如果我们将链表换成树或者哈希表结构，那么就能大幅提高冲突元素的查找效率。不过这样做则会加大哈希表构造的复杂度，也就是构建哈希表时的效率会变差。</p>
+<p>2）开放寻址： 当关键字key的哈希地址p=H（key）出现冲突时，以p为基础，产生另一个哈希地址p1，如果p1仍然冲突，再以p为基础，产生另一个哈希地址p2，…，直到找出一个不冲突的哈希地址pi，将相应元素存入其中。这种方法有一个通用的函数形式：</p>
+<p>Hi=（H（key）+di）% m i=1，2，…，n</p>
+<p>根据di的不同，又可以分为线性的、平方的、随机数之类的。。。这里不再展开。</p>
+<p>开发寻址的好处是存储空间更加紧凑，利用率高。但是这种方式让冲突元素之间产生了联系，在删除元素的时候，不能直接删除，否则就打乱了冲突元素的寻址链。</p>
+<p>3）再哈希法</p>
+<p>这种方法会预先定义一组哈希算法，发生冲突的时候，调用下一个哈希算法计算一直计算到不发生冲突的时候则插入元素，这种方法跟开放寻址的方法优缺点类似。函数表达式：</p>
+<p>index=Hi（key） , i=1，2，…，n</p>
+<h2 id="哈希表数据的查找"><a href="#哈希表数据的查找" class="headerlink" title="哈希表数据的查找"></a>哈希表数据的查找</h2><p>比如想知道小明的name属性，即小明.name。流程是这样的：</p>
+<ol>
+<li>根据字符映射关系(若使用简单除法散列)得到映射值为69</li>
+<li>使用哈希算法得到下标 index=hash(69)=9</li>
+<li>遍历数组中下标为9的链表，链表的第一个元素的key刚好就是我们要找的name，所以返回value值小明</li>
+</ol>
+<p>哈希表中增删一个元素并不会影响到其他的元素，不像数组一样需要改变后面所有的元素下标。在拉链式的哈希表中，属性的增删就是链表的增删，非常方便。而在纯数组形式的哈希表中，对属性的删并不是真的删除，而是做一个空标志而已，所以不影响其他元素。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 链表</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">LinkedList</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> Node = <span class="function"><span class="keyword">function</span>(<span class="params">element</span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.element = element;</span><br><span class="line">        <span class="keyword">this</span>.next = <span class="literal">null</span>;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> length = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> head = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.append = <span class="function"><span class="keyword">function</span>(<span class="params">element</span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> node = <span class="keyword">new</span> Node(element),</span><br><span class="line">            current;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (head === <span class="literal">null</span>)&#123; <span class="comment">//first node on list</span></span><br><span class="line">            head = node;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">            current = head;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//loop the list until find last item</span></span><br><span class="line">            <span class="keyword">while</span>(current.next)&#123;</span><br><span class="line">                current = current.next;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//get last item and assign next to added item to make the link</span></span><br><span class="line">            current.next = node;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        length++; <span class="comment">//update size of list</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.insert = <span class="function"><span class="keyword">function</span>(<span class="params">position, element</span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//check for out-of-bounds values</span></span><br><span class="line">        <span class="keyword">if</span> (position &gt;= <span class="number">0</span> &amp;&amp; position &lt;= length)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">var</span> node = <span class="keyword">new</span> Node(element),</span><br><span class="line">                current = head,</span><br><span class="line">                previous,</span><br><span class="line">                index = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (position === <span class="number">0</span>)&#123; <span class="comment">//add on first position</span></span><br><span class="line"></span><br><span class="line">                node.next = current;</span><br><span class="line">                head = node;</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (index++ <span class="xml"><span class="tag">&lt; <span class="attr">position</span>)&#123;</span></span></span><br><span class="line"><span class="xml">                    previous = current;</span></span><br><span class="line"><span class="xml">                    current = current.next;</span></span><br><span class="line"><span class="xml">                &#125;</span></span><br><span class="line"><span class="xml">                node.next = current;</span></span><br><span class="line"><span class="xml">                previous.next = node;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            length++; //update size of list</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            return true;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        &#125; else &#123;</span></span><br><span class="line"><span class="xml">            return false;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.removeAt = function(position)&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        //check for out-of-bounds values</span></span><br><span class="line"><span class="xml">        if (position &gt; -1 &amp;&amp; position <span class="tag">&lt; <span class="attr">length</span>)&#123;</span></span></span><br><span class="line"></span><br><span class="line"><span class="xml">            var current = head,</span></span><br><span class="line"><span class="xml">                previous,</span></span><br><span class="line"><span class="xml">                index = 0;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            //removing first item</span></span><br><span class="line"><span class="xml">            if (position === 0)&#123;</span></span><br><span class="line"><span class="xml">                head = current.next;</span></span><br><span class="line"><span class="xml">            &#125; else &#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">                while (index++ <span class="tag">&lt; <span class="attr">position</span>)&#123;</span></span></span><br><span class="line"></span><br><span class="line"><span class="xml">                    previous = current;</span></span><br><span class="line"><span class="xml">                    current = current.next;</span></span><br><span class="line"><span class="xml">                &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">                //link previous with current's next - skip it to remove</span></span><br><span class="line"><span class="xml">                previous.next = current.next;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            length--;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            return current.element;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        &#125; else &#123;</span></span><br><span class="line"><span class="xml">            return null;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.remove = function(element)&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        var index = this.indexOf(element);</span></span><br><span class="line"><span class="xml">        return this.removeAt(index);</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.indexOf = function(element)&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        var current = head,</span></span><br><span class="line"><span class="xml">            index = 0;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        while (current) &#123;</span></span><br><span class="line"><span class="xml">            if (element === current.element) &#123;</span></span><br><span class="line"><span class="xml">                return index;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"><span class="xml">            index++;</span></span><br><span class="line"><span class="xml">            current = current.next;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        return -1;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.isEmpty = function() &#123;</span></span><br><span class="line"><span class="xml">        return length === 0;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.size = function() &#123;</span></span><br><span class="line"><span class="xml">        return length;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.getHead = function()&#123;</span></span><br><span class="line"><span class="xml">        return head;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.toString = function()&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        var current = head,</span></span><br><span class="line"><span class="xml">            string = '';</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        while (current) &#123;</span></span><br><span class="line"><span class="xml">            string = current.element;</span></span><br><span class="line"><span class="xml">            current = current.next;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">        return string;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.print = function()&#123;</span></span><br><span class="line"><span class="xml">        console.log(this.toString());</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">// hash map的实现</span></span><br><span class="line"><span class="xml">function HashTableSeparateChaining()&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    var table = [];</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    var ValuePair = function(key, value)&#123;</span></span><br><span class="line"><span class="xml">        this.key = key;</span></span><br><span class="line"><span class="xml">        this.value = value;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        this.toString = function() &#123;</span></span><br><span class="line"><span class="xml">            return '[' + this.key + ' - ' + this.value + ']';</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    // 散列函数-除法散列法，运算效率低，不够均匀分布。</span></span><br><span class="line"><span class="xml">    var getHashByDivision = function (key) &#123;</span></span><br><span class="line"><span class="xml">        var hash = 0;</span></span><br><span class="line"><span class="xml">        for (var i = 0; i <span class="tag">&lt; <span class="attr">key.length</span>; <span class="attr">i</span>++) &#123;</span></span></span><br><span class="line"><span class="xml">            hash += key.charCodeAt(i);</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">        return hash % 16;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    // 散列函数-平方散列法，乘法运算效率稍微高，但还是不够均匀分布。</span></span><br><span class="line"><span class="xml">    var getHashBySquare = function (key) &#123;</span></span><br><span class="line"><span class="xml">        var hash = 0;</span></span><br><span class="line"><span class="xml">        for (var i = 0; i <span class="tag">&lt; <span class="attr">key.length</span>; <span class="attr">i</span>++) &#123;</span></span></span><br><span class="line"><span class="xml">            hash += key.charCodeAt(i);</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">        return (hash * hash) &gt;&gt;&gt; 28;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    // 散列函数-斐波那契（Fibonacci）散列法</span></span><br><span class="line"><span class="xml">    // 位操作时将会转换32位整数，再无符号右移28，结果只有4位，范围在0～15间</span></span><br><span class="line"><span class="xml">    var getHashBySquare = function (key) &#123;</span></span><br><span class="line"><span class="xml">        var hash = 0;</span></span><br><span class="line"><span class="xml">        for (var i = 0; i <span class="tag">&lt; <span class="attr">key.length</span>; <span class="attr">i</span>++) &#123;</span></span></span><br><span class="line"><span class="xml">            hash += key.charCodeAt(i);</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">        return (hash * 2654435769) &gt;&gt;&gt; 28;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    var hashCode = function(key)&#123;</span></span><br><span class="line"><span class="xml">        return getHashBySquare(key);</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    // 拉链法，计算code得到重复position时，建立一个链表存放</span></span><br><span class="line"><span class="xml">    // 此实现仍有 bug，比如说无法更改 key-value 中的 value，因为只会在链表中append</span></span><br><span class="line"><span class="xml">    this.put = function(key, value)&#123;</span></span><br><span class="line"><span class="xml">        var position = hashCode(key);</span></span><br><span class="line"><span class="xml">        console.log(position + ' - ' + key);</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        if (table[position] == undefined) &#123;</span></span><br><span class="line"><span class="xml">            table[position] = new LinkedList();</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">        table[position].append(new ValuePair(key, value));</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.get = function(key) &#123;</span></span><br><span class="line"><span class="xml">        var position = hashCode(key);</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        if (table[position] !== undefined  &amp;&amp; !table[position].isEmpty())&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            //iterate linked list to find key/value</span></span><br><span class="line"><span class="xml">            var current = table[position].getHead();</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            while(current.next)&#123;</span></span><br><span class="line"><span class="xml">                if (current.element.key === key)&#123;</span></span><br><span class="line"><span class="xml">                    return current.element.value;</span></span><br><span class="line"><span class="xml">                &#125;</span></span><br><span class="line"><span class="xml">                current = current.next;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            //check in case first or last element</span></span><br><span class="line"><span class="xml">            if (current.element.key === key)&#123;</span></span><br><span class="line"><span class="xml">                return current.element.value;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">        return undefined;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.remove = function(key)&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        var position = hashCode(key);</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        if (table[position] !== undefined)&#123;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            //iterate linked list to find key/value</span></span><br><span class="line"><span class="xml">            var current = table[position].getHead();</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            while(current.next)&#123;</span></span><br><span class="line"><span class="xml">                if (current.element.key === key)&#123;</span></span><br><span class="line"><span class="xml">                    table[position].remove(current.element);</span></span><br><span class="line"><span class="xml">                    if (table[position].isEmpty())&#123;</span></span><br><span class="line"><span class="xml">                        table[position] = undefined;</span></span><br><span class="line"><span class="xml">                    &#125;</span></span><br><span class="line"><span class="xml">                    return true;</span></span><br><span class="line"><span class="xml">                &#125;</span></span><br><span class="line"><span class="xml">                current = current.next;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">            //check in case first or last element</span></span><br><span class="line"><span class="xml">            if (current.element.key === key)&#123;</span></span><br><span class="line"><span class="xml">                table[position].remove(current.element);</span></span><br><span class="line"><span class="xml">                if (table[position].isEmpty())&#123;</span></span><br><span class="line"><span class="xml">                    table[position] = undefined;</span></span><br><span class="line"><span class="xml">                &#125;</span></span><br><span class="line"><span class="xml">                return true;</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">        return false;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="xml">    this.print = function() &#123;</span></span><br><span class="line"><span class="xml">        for (var i = 0; i <span class="tag">&lt; <span class="attr">table.length</span>; ++<span class="attr">i</span>) &#123;</span></span></span><br><span class="line"><span class="xml">            if (table[i] !== undefined) &#123;</span></span><br><span class="line"><span class="xml">               console.log(table[i].toString());</span></span><br><span class="line"><span class="xml">            &#125;</span></span><br><span class="line"><span class="xml">        &#125;</span></span><br><span class="line"><span class="xml">    &#125;;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/08/alorigam/dfa/" rel="next" title="模式匹配算法DFA与敏感词识别">
+                  <i class="fa fa-chevron-left"></i> 模式匹配算法DFA与敏感词识别
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap"><span class="nav-number">1.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#那在计算机中怎么保存这样的数据呢？"><span class="nav-number">1.1.</span> <span class="nav-text">那在计算机中怎么保存这样的数据呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？"><span class="nav-number">1.2.</span> <span class="nav-text">怎么将一组值相差范围巨大，个数波动范围很大的下标放入特定的数组空间呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何处理冲突的下标"><span class="nav-number">1.3.</span> <span class="nav-text">如何处理冲突的下标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#哈希表数据的查找"><span class="nav-number">2.</span> <span class="nav-text">哈希表数据的查找</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: 'f609a7e68c85ec24c465b3349ee43a79',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

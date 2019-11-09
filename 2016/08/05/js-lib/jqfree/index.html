@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="虽然团队里用上了vue，但是某些情况下可能仍然需要操作DOM，或者是需要一些诸如变量类型判断、时间解析函数、url解析函数、浮点数四舍五入小数位和获取随机位数字符串的辅助函数。而本篇就是教你怎么构建这样一个山寨版的库，只要400行代码，你就能体验写一个库函数畅快的感觉！">
+<meta name="keywords" content="jquery">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jqfree">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2016&#x2F;08&#x2F;05&#x2F;js-lib&#x2F;jqfree&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="虽然团队里用上了vue，但是某些情况下可能仍然需要操作DOM，或者是需要一些诸如变量类型判断、时间解析函数、url解析函数、浮点数四舍五入小数位和获取随机位数字符串的辅助函数。而本篇就是教你怎么构建这样一个山寨版的库，只要400行代码，你就能体验写一个库函数畅快的感觉！">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;16-7-31&#x2F;23881940.jpg">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.815Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;16-7-31&#x2F;23881940.jpg">
+
+<link rel="canonical" href="http://everlose.github.io/2016/08/05/js-lib/jqfree/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>jqfree | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2016/08/05/js-lib/jqfree/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          jqfree
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-08-05 15:51:54" itemprop="dateCreated datePublished" datetime="2016-08-05T15:51:54+08:00">2016-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js-lib/" itemprop="url" rel="index">
+                    <span itemprop="name">js-lib</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">虽然团队里用上了vue，但是某些情况下可能仍然需要操作DOM，或者是需要一些诸如变量类型判断、时间解析函数、url解析函数、浮点数四舍五入小数位和获取随机位数字符串的辅助函数。而本篇就是教你怎么构建这样一个山寨版的库，只要400行代码，你就能体验写一个库函数畅快的感觉！</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>this is an imitation jquery, it has fewer fuctions, but only 400+ lines of code. jqfree can not be used in project, we just take few time to do some research and practice about jquery。</p>
+<p>github 地址：<a href="https://github.com/everlose/jqfree" target="_blank" rel="noopener">https://github.com/everlose/jqfree</a></p>
+<h2 id="jqfree-core"><a href="#jqfree-core" class="headerlink" title="jqfree core"></a>jqfree core</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> $ = <span class="function"><span class="keyword">function</span>(<span class="params">selector, context</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> $.fn.init(selector, context);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">$.fn = $.prototype;</span><br><span class="line"></span><br><span class="line">$.fn.init = <span class="function"><span class="keyword">function</span>(<span class="params">selector, context</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (selector.nodeType === <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>[<span class="number">0</span>] = selector;</span><br><span class="line">        <span class="keyword">this</span>.length = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> parent = context || <span class="built_in">document</span>; </span><br><span class="line">    <span class="keyword">var</span> nodeList = parent.querySelectorAll(selector);</span><br><span class="line">    <span class="keyword">this</span>.length = nodeList.length;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;<span class="keyword">this</span>.length; i+=<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>[i] = nodeList[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">$.fn.init.prototype = $.fn;</span><br></pre></td></tr></table></figure>
+<p>我们需要一个包装着DOM Elements的伪数组，此伪数组对象使用原型链去挂载共享的DOM处理方法，原理如下图。<br><img src="http://7xn4mw.com1.z0.glb.clouddn.com/16-7-31/23881940.jpg" alt=""></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//选择器</span></span><br><span class="line">$(<span class="string">'body'</span>); <span class="comment">//返回$.fn.init &#123;0: body, length: 1, selector: "body"&#125;</span></span><br><span class="line">$(<span class="string">'.class'</span>);</span><br><span class="line">$(<span class="string">'#id'</span>);</span><br><span class="line">$(<span class="string">'#id .class'</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="extend"><a href="#extend" class="headerlink" title="extend"></a>extend</h2><p>jqfree中的extend函数参照了prototype.js的实现方式，$.extend和$.fn.extend功能相同，也都是通过浅拷贝的方式，把第二个参数上的对象扩展添加到第二个参数的对象上，如果没有指定第二个参数，则会把第一个参数添加到this上。需要给DOM元素添加方法的话，使用$.fn.extend如$.fn.append，而需要给全局$对象添加扩展的话，使用$.extend，如$.ajax。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$.extend = $.fn.extend = <span class="function"><span class="keyword">function</span> (<span class="params">destination, source</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//if source is not exist，copy the destination to this。</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> source === <span class="string">'undefined'</span>) &#123;</span><br><span class="line">        source = destination;</span><br><span class="line">        destination = <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> property <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (source.hasOwnProperty(property)) &#123;</span><br><span class="line">            destination[property] = source[property];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> destination;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="traverse"><a href="#traverse" class="headerlink" title="traverse"></a>traverse</h2><p>遍历jqfree对象中的DOM Elements。实际上是遍历了<code>$.fn.init {0: body, length: 1, selector: &quot;body&quot;}</code>这样的一个伪数组中的类似数组的那一部分。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    each: <span class="function"><span class="keyword">function</span> (<span class="params">func</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> i=<span class="number">0</span>,</span><br><span class="line">            length = <span class="keyword">this</span>.length;</span><br><span class="line">        <span class="keyword">for</span> (; i&lt;length; i+=<span class="number">1</span>) &#123;</span><br><span class="line">            func.call(<span class="keyword">this</span>[i], <span class="keyword">this</span>[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>接受一个回调函数，其第一个参数为dom元素，第二个参数为序号，调用代码如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">'body'</span>).each(<span class="function"><span class="keyword">function</span>(<span class="params">val, index</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(val, index)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="DOM-processor。"><a href="#DOM-processor。" class="headerlink" title="DOM processor。"></a>DOM processor。</h2><p>文档操作。添加了append，prepend，remove，empty的方法，功用同原版jquery。因为生成的$.fn.init是个包含DOM的伪数组，所以操作中就需要遍历这个数组做append操作，目的是为了让选中的所有DOM元素都append一遍。appendChild为DOM level2方法，从IE6开始就支持。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    append: <span class="function"><span class="keyword">function</span> (<span class="params">child</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($.isString(child)) &#123;</span><br><span class="line">            child = $(child)[<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params">v, k</span>) </span>&#123;</span><br><span class="line">            v.appendChild(child);</span><br><span class="line">        &#125;);</span><br><span class="line">        child = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>调用代码如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> element = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">$(<span class="string">'body'</span>).append(element);</span><br></pre></td></tr></table></figure>
+
+<h2 id="css"><a href="#css" class="headerlink" title="css"></a>css</h2><p>添加了css的方法，功用同原版jquery。现将css规则转为驼峰式，然后利用style属性插入，如<code>background-color: #FFF</code>，会被当作<code>dom.style.backgroundColor = &#39;#FFF&#39;</code>这样的插入。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    css: <span class="function"><span class="keyword">function</span> (<span class="params">cssRules, value</span>) </span>&#123;</span><br><span class="line">        <span class="comment">//cssName need to Converted into camel casing。 </span></span><br><span class="line">        <span class="keyword">var</span> transformHump = <span class="function"><span class="keyword">function</span> (<span class="params">name</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> name.replace(<span class="regexp">/\-(\w)/g</span>, <span class="function"><span class="keyword">function</span>(<span class="params">all, letter</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">return</span> letter.toUpperCase();</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">if</span> ($.isString(cssRules)) &#123;</span><br><span class="line">            <span class="keyword">if</span> ($.isUndefined(value)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">document</span>.defaultView.getComputedStyle(<span class="keyword">this</span>[<span class="number">0</span>], <span class="literal">null</span>)</span><br><span class="line">                    .getPropertyValue(cssRules);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params">v, k</span>) </span>&#123;</span><br><span class="line">                    v.style[transformHump(cssRules)] = value;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i <span class="keyword">in</span> cssRules) &#123;</span><br><span class="line">                <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params">v, k</span>) </span>&#123;</span><br><span class="line">                    v.style[transformHump(i)] = cssRules[i];</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>支持两种写法，参数1和参数2可以互为键值对，或者参数1为一个对象，另外这里只第一个dom元素的css规则生效。调用代码如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取选中的第一个元素的某个css属性，其属性名不需要驼峰式写法</span></span><br><span class="line">$(<span class="string">'body'</span>).css(<span class="string">'font-size'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//设置div元素的css属性。提供了以下两种写法。</span></span><br><span class="line">$(<span class="string">'div'</span>).css(<span class="string">'color'</span>, <span class="string">'#FFF'</span>);</span><br><span class="line">$(<span class="string">'div'</span>).css(&#123;</span><br><span class="line">    color: <span class="string">'#FFF'</span>,</span><br><span class="line">    background: <span class="string">'green'</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="DOM-filter"><a href="#DOM-filter" class="headerlink" title="DOM filter"></a>DOM filter</h2><p>添加了dom过滤的几个函数，如children、parent、siblings。返回出去的DOM对象会再次被$.fn.init对象包装。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    children: <span class="function"><span class="keyword">function</span> (<span class="params">selector</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> $(selector, <span class="keyword">this</span>[<span class="number">0</span>]);</span><br><span class="line">    &#125; </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>只对第一个DOM元素生效，调用代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$(&apos;body&apos;).children(&apos;.class&apos;); //获取第一个body元素下的所有class名为&apos;.class&apos;的元素</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="attributes"><a href="#attributes" class="headerlink" title="attributes"></a>attributes</h2><p>获取属性，实现了attr，removeAttr，addClass，hasClass，removeClass，data，html这几个api，功能和jq相似。<br>拿addClass举例来说，classList为H5的API，不支持IE9及以下。所有被匹配的dom元素都会被addClass处理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    addClass: <span class="function"><span class="keyword">function</span> (<span class="params">className</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params">v, k</span>) </span>&#123;</span><br><span class="line">            <span class="comment">//please use 'v.className += className' if you need support IE9.</span></span><br><span class="line">            v.classList.add(className);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>调用方式如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">'body'</span>).addClass(<span class="string">'someClass'</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="event"><a href="#event" class="headerlink" title="event"></a>event</h2><p>事件操作。绑定事件使用on，取消绑定事件使用off，触发事件使用trigger。拿on举例，直接使用了addEventListener监听，不支持IE8及以下。需要支持IE8级以下的话，请使用attachEvent兼容。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    on: <span class="function"><span class="keyword">function</span> (<span class="params">event, func</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params">v, k</span>) </span>&#123;</span><br><span class="line">            <span class="comment">//dom level 2，IE8 not support。</span></span><br><span class="line">            v.addEventListener(event, func, <span class="literal">false</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>第一个参数为事件名，第二个参数为回调，调用代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">'body'</span>).on(<span class="string">'click'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'click'</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="effect"><a href="#effect" class="headerlink" title="effect"></a>effect</h2><p>其他效果，鉴于动画用css3会更直观，所以这里只实现了show和hide两个方法。所有匹配的DOM元素都会被影响，这里只是简单设置了display属性为block或者none，有待改进。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$.fn.extend(&#123;</span><br><span class="line">    show: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">           <span class="keyword">this</span>.style.display = <span class="string">'block'</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>调用代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">'body'</span>).hide();</span><br></pre></td></tr></table></figure>
+
+<h2 id="ajax"><a href="#ajax" class="headerlink" title="ajax"></a>ajax</h2><p>抽离jsonp，$.jsonp独立于$.ajax，毕竟jsonp的原理和ajax完全没有关系，如果使用$.ajax的话有些误导别人。<br>$.ajax和$.jsonp方法最后都会返回一个Promise对象，。笔者这里直接使用了ES6提供的Promise对象，ES6提供的Promise在chrome从33版开始支持，IE系列并不支持，如果有需要自己写一个Promise的话请打开下面代码中的注释并加入jqfree.js中。此Promise参照了<a href="https://github.com/panyifei/Front-end-learning/blob/master/%E6%A1%86%E6%9E%B6%E4%BB%A5%E5%8F%8A%E8%A7%84%E8%8C%83/Promise.md" target="_blank" rel="noopener">这里的方案</a>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ES6自带了Promise，有需要理解Promise如何实现的话请看这段注释代码</span></span><br><span class="line"><span class="comment">var Promise = function (fn) &#123;</span></span><br><span class="line"><span class="comment">    var state = 'pending';</span></span><br><span class="line"><span class="comment">    var doneList = [];</span></span><br><span class="line"><span class="comment">    var failList= [];</span></span><br><span class="line"><span class="comment">    this.then = function(done ,fail)&#123;</span></span><br><span class="line"><span class="comment">        switch(state)&#123;</span></span><br><span class="line"><span class="comment">            case 'pending':</span></span><br><span class="line"><span class="comment">                doneList.push(done);</span></span><br><span class="line"><span class="comment">                //每次如果没有推入fail方法，我也会推入一个null来占位</span></span><br><span class="line"><span class="comment">                failList.push(fail || null);</span></span><br><span class="line"><span class="comment">                return this;</span></span><br><span class="line"><span class="comment">                break;</span></span><br><span class="line"><span class="comment">            case 'fulfilled':</span></span><br><span class="line"><span class="comment">                done();</span></span><br><span class="line"><span class="comment">                return this;</span></span><br><span class="line"><span class="comment">                break;</span></span><br><span class="line"><span class="comment">            case 'rejected':</span></span><br><span class="line"><span class="comment">                fail();</span></span><br><span class="line"><span class="comment">                return this;</span></span><br><span class="line"><span class="comment">                break;</span></span><br><span class="line"><span class="comment">        &#125;</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">    function tryToJson(obj) &#123;</span></span><br><span class="line"><span class="comment">        var value;</span></span><br><span class="line"><span class="comment">        try &#123;</span></span><br><span class="line"><span class="comment">            value = JSON.parse(obj);</span></span><br><span class="line"><span class="comment">        &#125; catch (e) &#123;</span></span><br><span class="line"><span class="comment">            value = obj;</span></span><br><span class="line"><span class="comment">        &#125;</span></span><br><span class="line"><span class="comment">        return value</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">    function resolve(newValue)&#123;</span></span><br><span class="line"><span class="comment">        state = 'fulfilled';</span></span><br><span class="line"><span class="comment">        setTimeout(function()&#123;</span></span><br><span class="line"><span class="comment">            var value = tryToJson(newValue);</span></span><br><span class="line"><span class="comment">            for (var i = 0; i &lt; doneList.length; i++)&#123;</span></span><br><span class="line"><span class="comment">                var temp = doneList[i](value);</span></span><br><span class="line"><span class="comment">                if (temp instanceof Promise) &#123;</span></span><br><span class="line"><span class="comment">                    var newP = temp;</span></span><br><span class="line"><span class="comment">                    for (i++; i &lt; doneList.length; i++) &#123;</span></span><br><span class="line"><span class="comment">                        newP.then(doneList[i], failList[i]);</span></span><br><span class="line"><span class="comment">                    &#125;</span></span><br><span class="line"><span class="comment">                &#125; else &#123;</span></span><br><span class="line"><span class="comment">                    value = temp;</span></span><br><span class="line"><span class="comment">                &#125;</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">        &#125;, 0);</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">    function reject(newValue)&#123;</span></span><br><span class="line"><span class="comment">        state = 'rejected';</span></span><br><span class="line"><span class="comment">        setTimeout(function()&#123;</span></span><br><span class="line"><span class="comment">            var value = tryToJson(newValue);</span></span><br><span class="line"><span class="comment">            var tempRe = failList[0](value);</span></span><br><span class="line"><span class="comment">            //如果reject里面传入了一个promise，那么执行完此次的fail之后，将剩余的done和fail传入新的promise中</span></span><br><span class="line"><span class="comment">            if(tempRe instanceof Promise)&#123;</span></span><br><span class="line"><span class="comment">                var newP = tempRe;</span></span><br><span class="line"><span class="comment">                for (i=1;i&lt;doneList.length;i++) &#123;</span></span><br><span class="line"><span class="comment">                    newP.then(doneList[i],failList[i]);</span></span><br><span class="line"><span class="comment">                &#125;</span></span><br><span class="line"><span class="comment">            &#125; else &#123;</span></span><br><span class="line"><span class="comment">                //如果不是promise，执行完当前的fail之后，继续执行doneList</span></span><br><span class="line"><span class="comment">                value = tempRe;</span></span><br><span class="line"><span class="comment">                doneList.shift();</span></span><br><span class="line"><span class="comment">                failList.shift();</span></span><br><span class="line"><span class="comment">                resolve(value);</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">        &#125;, 0);</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    fn(resolve,reject);</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">$.extend(&#123;</span><br><span class="line">    ajax: <span class="function"><span class="keyword">function</span> (<span class="params">opts</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest(),</span><br><span class="line">            type = opts.type || <span class="string">'GET'</span>,</span><br><span class="line">            url = opts.url,</span><br><span class="line">            params = opts.data,</span><br><span class="line">            dataType = opts.dataType || <span class="string">'json'</span>;</span><br><span class="line"></span><br><span class="line">        type = type.toUpperCase();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (type === <span class="string">'GET'</span>) &#123;</span><br><span class="line">            params = (<span class="function"><span class="keyword">function</span>(<span class="params">obj</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">var</span> str = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">var</span> prop <span class="keyword">in</span> obj)&#123;</span><br><span class="line">                    str += prop + <span class="string">'='</span> + obj[prop] + <span class="string">'&amp;'</span></span><br><span class="line">                &#125;</span><br><span class="line">                str = str.slice(<span class="number">0</span>, str.length - <span class="number">1</span>);</span><br><span class="line">                <span class="keyword">return</span> str;</span><br><span class="line">            &#125;)(opts.data);</span><br><span class="line">            url += url.indexOf(<span class="string">'?'</span>) === <span class="number">-1</span> ? <span class="string">'?'</span> + params : <span class="string">'&amp;'</span> + params;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        xhr.open(type, url);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (opts.contentType) &#123;</span><br><span class="line">            xhr.setRequestHeader(<span class="string">'Content-type'</span>, opts.contentType);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        xhr.send(params ? params : <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//return promise</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span> (<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">            <span class="comment">//onload are executed just after the sync request is comple，</span></span><br><span class="line">            <span class="comment">//please use 'onreadystatechange' if need support IE9-</span></span><br><span class="line">            xhr.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (xhr.status === <span class="number">200</span>) &#123;</span><br><span class="line">                    <span class="keyword">var</span> result;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        result = <span class="built_in">JSON</span>.parse(xhr.response);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">                        result = xhr.response;</span><br><span class="line">                    &#125;</span><br><span class="line">                    resolve(result);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    reject(xhr.response);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">            </span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;,</span><br><span class="line">    jsonp: <span class="function"><span class="keyword">function</span> (<span class="params">opts</span>) </span>&#123;</span><br><span class="line">        <span class="comment">//to produce random string</span></span><br><span class="line">        <span class="keyword">var</span> generateRandomAlphaNum = <span class="function"><span class="keyword">function</span> (<span class="params">len</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> rdmString = <span class="string">''</span>;</span><br><span class="line">            <span class="keyword">for</span> (; rdmString.length &lt; len; rdmString += <span class="built_in">Math</span>.random().toString(<span class="number">36</span>).substr(<span class="number">2</span>));</span><br><span class="line">            <span class="keyword">return</span> rdmString.substr(<span class="number">0</span>, len);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> url = <span class="keyword">typeof</span> opts === <span class="string">'string'</span> ? opts : opts.url,</span><br><span class="line">            callbackName = opts.callbackName || <span class="string">'jsonpCallback'</span> + generateRandomAlphaNum(<span class="number">10</span>),</span><br><span class="line">            callbackFn = opts.callbackFn || <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">        <span class="keyword">if</span> (url.indexOf(<span class="string">'callback'</span>) === <span class="number">-1</span>) &#123;</span><br><span class="line">            url += url.indexOf(<span class="string">'?'</span>) === <span class="number">-1</span> ? <span class="string">'?callback='</span> + callbackName :</span><br><span class="line">                <span class="string">'&amp;callback='</span> + callbackName;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> opts === <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">var</span> params = (<span class="function"><span class="keyword">function</span>(<span class="params">obj</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">var</span> str = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">var</span> prop <span class="keyword">in</span> obj)&#123;</span><br><span class="line">                    str += prop + <span class="string">'='</span> + obj[prop] + <span class="string">'&amp;'</span></span><br><span class="line">                &#125;</span><br><span class="line">                str = str.slice(<span class="number">0</span>, str.length - <span class="number">1</span>);</span><br><span class="line">                <span class="keyword">return</span> str;</span><br><span class="line">            &#125;)(opts.data);</span><br><span class="line">            url += <span class="string">'&amp;'</span> + params;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> eleScript= <span class="built_in">document</span>.createElement(<span class="string">'script'</span>); </span><br><span class="line">        eleScript.type = <span class="string">'text/javascript'</span>;</span><br><span class="line">        eleScript.id = <span class="string">'jsonp'</span>;</span><br><span class="line">        eleScript.src = url;</span><br><span class="line">        <span class="built_in">document</span>.getElementsByTagName(<span class="string">'HEAD'</span>)[<span class="number">0</span>].appendChild(eleScript);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// window[callbackName] = callbackFn;</span></span><br><span class="line">        <span class="comment">//return promise</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span> (<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">            <span class="built_in">window</span>[callbackName] = <span class="function"><span class="keyword">function</span> (<span class="params">json</span>) </span>&#123;</span><br><span class="line">                resolve(json);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//onload are executed just after the sync request is comple，</span></span><br><span class="line">            <span class="comment">//please use 'onreadystatechange' if need support IE9-</span></span><br><span class="line">            eleScript.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="comment">//delete the script element when a request done。</span></span><br><span class="line">                <span class="built_in">document</span>.getElementById(<span class="string">'jsonp'</span>).outerHTML = <span class="string">''</span>;</span><br><span class="line">                eleScript = <span class="literal">null</span>;</span><br><span class="line">            &#125;;</span><br><span class="line">            eleScript.onerror = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="built_in">document</span>.getElementById(<span class="string">'jsonp'</span>).outerHTML = <span class="string">''</span>;</span><br><span class="line">                eleScript = <span class="literal">null</span>;</span><br><span class="line">                reject(<span class="string">'error'</span>);</span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>$.ajax接受一个对象作为参数，并且支持使用promise的写法，调用如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    url: <span class="string">'/test.json'</span></span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $.ajax(&#123;</span><br><span class="line">        url: <span class="string">'/test.json'</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//jsonp也可以接受一个url字符串作为参数。</span></span><br><span class="line">$.jsonp(&#123;</span><br><span class="line">    url: <span class="string">'/test.json'</span>,</span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $.jsonp(&#123;</span><br><span class="line">        url: <span class="string">'/test.json'</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">d</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(d);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>注意，本地没法测试ajax函数，如果有需要请在此项目目录下运行<code>node server.js</code>，接着去打开test.html文件的关于ajax的注释，再去<code>localhost:3000/test.html</code>就能看到测试ajax的内容。</p>
+<h3 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h3><p>将增删改查cookie操作都用一个函数搞定</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">$.extend(&#123;</span><br><span class="line">    cookie: <span class="function"><span class="keyword">function</span> (<span class="params">cookieName, cookieValue, day</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> readCookie = <span class="function"><span class="keyword">function</span> (<span class="params">name</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> arr,</span><br><span class="line">                reg = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">'(^| )'</span> + name + <span class="string">'=([^;]*)(;|$)'</span>),</span><br><span class="line">                matched = <span class="built_in">document</span>.cookie.match(reg);</span><br><span class="line">            <span class="keyword">if</span>(arr = matched) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">unescape</span>(arr[<span class="number">2</span>]);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">var</span> setCookie = <span class="function"><span class="keyword">function</span> (<span class="params">name, value, time</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> Days = time || <span class="number">30</span>;</span><br><span class="line">            <span class="keyword">var</span> exp = <span class="keyword">new</span> <span class="built_in">Date</span>();</span><br><span class="line">            exp.setTime(exp.getTime() + Days * <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">            <span class="built_in">document</span>.cookie = name + <span class="string">"="</span>+ <span class="built_in">escape</span> (value) + <span class="string">";expires="</span> + exp.toGMTString();</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">if</span> (cookieName &amp;&amp; cookieValue) &#123;</span><br><span class="line">            <span class="comment">//set cookie</span></span><br><span class="line">            setCookie(cookieName, cookieValue, day);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cookieName &amp;&amp; $.isNull(cookieValue)) &#123;</span><br><span class="line">            <span class="comment">//delete cookie</span></span><br><span class="line">            setCookie(cookieName, <span class="string">''</span>, <span class="number">-1</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cookieName) &#123;</span><br><span class="line">            <span class="comment">//read cookie</span></span><br><span class="line">            <span class="keyword">return</span> readCookie(cookieName);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>调用代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//添加cookie，前两个参数为cookie名和值，必填。第三个参数设置cookie有效时常，单位为天，可选。</span></span><br><span class="line">$.cookie(<span class="string">'test'</span>, <span class="string">'content'</span>);</span><br><span class="line"><span class="comment">//读取cookie，只填第一个参数</span></span><br><span class="line">$.cookie(<span class="string">'test'</span>); <span class="comment">//"content"</span></span><br><span class="line"><span class="comment">//删除cookie, 第二个参数填null</span></span><br><span class="line">$.cookie(<span class="string">'test'</span>, <span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="utils"><a href="#utils" class="headerlink" title="utils"></a>utils</h3><p>添加了变量类型判断、时间解析函数、url解析函数、浮点数四舍五入小数位和获取随机位数字符串的辅助函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">$.extend(&#123;</span><br><span class="line">    isUndefined: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> obj === <span class="keyword">void</span> <span class="number">0</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    isNull: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> obj === <span class="literal">null</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    isBoolean: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Boolean]'</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    isNumber: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Number]'</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    isString: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object String]'</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="built_in">isNaN</span>: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> obj !== obj;</span><br><span class="line">    &#125;,</span><br><span class="line">    isFunction: <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">typeof</span> obj === <span class="string">'function'</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    ......</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">$.extend(&#123;</span><br><span class="line">    <span class="comment">//$.parseTime(new Date().getTime(), 'YYYY-MM-DD hh:mm:ss')</span></span><br><span class="line">    <span class="comment">//result: "2016-08-03 16:14:12"</span></span><br><span class="line">    parseTime: <span class="function"><span class="keyword">function</span> (<span class="params">timeStamp, format</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> date = <span class="keyword">new</span> <span class="built_in">Date</span>(timeStamp);</span><br><span class="line">        <span class="keyword">var</span> o = &#123; </span><br><span class="line">            <span class="string">'M+'</span> : date.getMonth() + <span class="number">1</span>, <span class="comment">//month </span></span><br><span class="line">            <span class="string">'D+'</span> : date.getDate(), <span class="comment">//day </span></span><br><span class="line">            <span class="string">'h+'</span> : date.getHours(), <span class="comment">//hour </span></span><br><span class="line">            <span class="string">'m+'</span> : date.getMinutes(), <span class="comment">//minute </span></span><br><span class="line">            <span class="string">'s+'</span> : date.getSeconds(), <span class="comment">//second </span></span><br><span class="line">            <span class="string">'S'</span> : date.getMilliseconds() <span class="comment">//millisecond </span></span><br><span class="line">        &#125; </span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="regexp">/(Y+)/</span>.test(format)) &#123; </span><br><span class="line">            format = format.replace(<span class="built_in">RegExp</span>.$<span class="number">1</span>, </span><br><span class="line">                (date.getFullYear() + <span class="string">''</span>).substr(<span class="number">4</span> - <span class="built_in">RegExp</span>.$<span class="number">1.</span>length)); </span><br><span class="line">        &#125; </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">var</span> k <span class="keyword">in</span> o) &#123; </span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">'('</span>+ k +<span class="string">')'</span>).test(format)) &#123; </span><br><span class="line">                format = format.replace(<span class="built_in">RegExp</span>.$<span class="number">1</span>, </span><br><span class="line">                    <span class="built_in">RegExp</span>.$<span class="number">1.</span>length == <span class="number">1</span> ? o[k] : (<span class="string">'00'</span>+ o[k]).substr((<span class="string">''</span>+ o[k]).length)); </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> format; </span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">//$.parseUrl(location.href)</span></span><br><span class="line">    <span class="comment">//return an object contains the folling info.</span></span><br><span class="line">    parseUrl: <span class="function"><span class="keyword">function</span> (<span class="params">url</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> a =  <span class="built_in">document</span>.createElement(<span class="string">'a'</span>);</span><br><span class="line">        a.href = url;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            source: url,</span><br><span class="line">            protocol: a.protocol.replace(<span class="string">':'</span>,<span class="string">''</span>),</span><br><span class="line">            host: a.hostname,</span><br><span class="line">            port: a.port,</span><br><span class="line">            query: a.search,</span><br><span class="line">            params: (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">var</span> ret = &#123;&#125;,</span><br><span class="line">                    seg = a.search.replace(<span class="regexp">/^\?/</span>,<span class="string">''</span>).split(<span class="string">'&amp;'</span>),</span><br><span class="line">                    len = seg.length, i = <span class="number">0</span>, s;</span><br><span class="line">                <span class="keyword">for</span> (;i&lt;len;i++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!seg[i]) &#123; <span class="keyword">continue</span>; &#125;</span><br><span class="line">                    s = seg[i].split(<span class="string">'='</span>);</span><br><span class="line">                    ret[s[<span class="number">0</span>]] = s[<span class="number">1</span>];</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> ret;</span><br><span class="line">            &#125;)(),</span><br><span class="line">            file: (a.pathname.match(<span class="regexp">/\/([^\/?#]+)$/i</span>) || [,<span class="string">''</span>])[<span class="number">1</span>],</span><br><span class="line">            hash: a.hash.replace(<span class="string">'#'</span>,<span class="string">''</span>),</span><br><span class="line">            path: a.pathname.replace(<span class="regexp">/^([^\/])/</span>,<span class="string">'/$1'</span>),</span><br><span class="line">            relative: (a.href.match(<span class="regexp">/tps?:\/\/[^\/]+(.+)/</span>) || [,<span class="string">''</span>])[<span class="number">1</span>],</span><br><span class="line">            segments: a.pathname.replace(<span class="regexp">/^\//</span>,<span class="string">''</span>).split(<span class="string">'/'</span>)</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">//$.toFixedFloat(15.658, 2)</span></span><br><span class="line">    <span class="comment">//result: 15.66</span></span><br><span class="line">    toFixedFloat: <span class="function"><span class="keyword">function</span> (<span class="params">value, precision</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> power = <span class="built_in">Math</span>.pow(<span class="number">10</span>, precision || <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">String</span>(<span class="built_in">Math</span>.round(value * power) / power);</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">//for generate random string</span></span><br><span class="line">    <span class="comment">//$.generateRandomAlphaNum(5)</span></span><br><span class="line">    <span class="comment">//random result: like "rc3sr".</span></span><br><span class="line">    generateRandomAlphaNum: <span class="function"><span class="keyword">function</span> (<span class="params">len</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> rdmString = <span class="string">''</span>;</span><br><span class="line">        <span class="keyword">for</span> (; rdmString.length &lt; len; rdmString += <span class="built_in">Math</span>.random().toString(<span class="number">36</span>).substr(<span class="number">2</span>));</span><br><span class="line">        <span class="keyword">return</span> rdmString.substr(<span class="number">0</span>, len);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>调用如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//参数1是时间戳，参数2是格式，年为Y，月为M，日为D，时h，分m，秒s，毫秒S，注意大小写，多余的位数补0</span></span><br><span class="line">$.parseTime(<span class="keyword">new</span> <span class="built_in">Date</span>().getTime(), <span class="string">'YYYY-MM-DD hh:mm:ss'</span>); <span class="comment">//"2016-08-03 16:14:12"。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//参数为url链接</span></span><br><span class="line">$.parseUrl(location.href); <span class="comment">//返回一个带诸多url信息的对象。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//参数1是目标浮点数，参数2是保留到第几位小数</span></span><br><span class="line">$.toFixedFloat(<span class="number">15.658</span>, <span class="number">2</span>); <span class="comment">//四舍五入到两位小数：15.66</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//参数为生成随机的字符串长度</span></span><br><span class="line">$.generateRandomAlphaNum(<span class="number">5</span>); <span class="comment">//如"rc3sr"</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>jqfree纯粹研究用，不考虑诸多兼容。算上注释也就只有400行，可以简单研究一下其代码是如何构建的。从jq毕业一阵子了，总得写点东西纪念下老伙计。<a href="https://github.com/everlose/jqfree" target="_blank" rel="noopener">github地址在这里</a>，有启发的话请不吝给我的github点赞。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://www.zhangxinxu.com/wordpress/2013/07/jquery-%E5%8E%9F%E7%90%86-%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">张鑫旭 jQuery诞生记-原理与机制</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/05/jquery-free.html" target="_blank" rel="noopener">阮一峰 如何做到jquery-free</a></li>
+<li><a href="http://www.cnblogs.com/yupeng/archive/2012/03/11/2389997.html" target="_blank" rel="noopener">extend 方法在js框架中的设计</a> </li>
+<li><a href="http://www.cnblogs.com/liuzhenwei/p/5235473.html" target="_blank" rel="noopener">刘镇维 Promise简单实现（正常思路版）</a></li>
+<li><a href="http://www.jb51.net/article/64330.htm" target="_blank" rel="noopener">JS设置cookie、读取cookie、删除cookie</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/jquery/" rel="tag"># jquery</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2016/08/05/network/http-status-code/" rel="next" title="http请求状态码">
+                  <i class="fa fa-chevron-left"></i> http请求状态码
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2016/10/01/mobile-h5/h5-adaptation/" rel="prev" title="H5手机端适配方案研究">
+                  H5手机端适配方案研究 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jqfree-core"><span class="nav-number">2.</span> <span class="nav-text">jqfree core</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#extend"><span class="nav-number">3.</span> <span class="nav-text">extend</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#traverse"><span class="nav-number">4.</span> <span class="nav-text">traverse</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DOM-processor。"><span class="nav-number">5.</span> <span class="nav-text">DOM processor。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#css"><span class="nav-number">6.</span> <span class="nav-text">css</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DOM-filter"><span class="nav-number">7.</span> <span class="nav-text">DOM filter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#attributes"><span class="nav-number">8.</span> <span class="nav-text">attributes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#event"><span class="nav-number">9.</span> <span class="nav-text">event</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#effect"><span class="nav-number">10.</span> <span class="nav-text">effect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ajax"><span class="nav-number">11.</span> <span class="nav-text">ajax</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cookie"><span class="nav-number">11.1.</span> <span class="nav-text">cookie</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#utils"><span class="nav-number">11.2.</span> <span class="nav-text">utils</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">12.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">13.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: 'f2c415158fe544343ba2e75696c3973d',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

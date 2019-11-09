@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="最近是检出 github 上的 node 项目，发现总是 es6 语法，而我想用 vscode 调试 node 程序，，踩了坑后记录一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 node 程序中写 es6 语法">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2018&#x2F;07&#x2F;05&#x2F;node&#x2F;node-es6&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="最近是检出 github 上的 node 项目，发现总是 es6 语法，而我想用 vscode 调试 node 程序，，踩了坑后记录一下。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.821Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://everlose.github.io/2018/07/05/node/node-es6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>在 node 程序中写 es6 语法 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2018/07/05/node/node-es6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          在 node 程序中写 es6 语法
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-07-05 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-05T00:00:00+08:00">2018-07-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/node/" itemprop="url" rel="index">
+                    <span itemprop="name">node</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">最近是检出 github 上的 node 项目，发现总是 es6 语法，而我想用 vscode 调试 node 程序，，踩了坑后记录一下。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>本人 node 环境是 9.0.0，直接起项目时发现</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ node server.js</span><br><span class="line">/Users/everlose/workspace/fedidea/graphql-server/server.js:1</span><br><span class="line">(<span class="keyword">function</span> (exports, require, module, __filename, __dirname) &#123; import Koa from <span class="string">'koa'</span></span><br><span class="line">                                                              ^^^^^^</span><br><span class="line"></span><br><span class="line">SyntaxError: Unexpected token import</span><br><span class="line">    at createScript (vm.js:80:10)</span><br><span class="line">    at Object.runInThisContext (vm.js:152:10)</span><br><span class="line">    at Module._compile (module.js:605:28)</span><br><span class="line">    at Object.Module._extensions..js (module.js:652:10)</span><br><span class="line">    at Module.load (module.js:560:32)</span><br><span class="line">    at tryModuleLoad (module.js:503:12)</span><br><span class="line">    at Function.Module._load (module.js:495:3)</span><br><span class="line">    at Function.Module.runMain (module.js:682:10)</span><br><span class="line">    at startup (bootstrap_node.js:191:16)</span><br><span class="line">    at bootstrap_node.js:613:3</span><br></pre></td></tr></table></figure>
+
+<p>在本机可以检测 node 所支持的 es6 语法，如下所示，由此可知我本地其他 es6 语法大体上都支持，除了 import 和 export。而 es6 注定绕不过这个。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">$ node -v</span><br><span class="line">v9.0.0</span><br><span class="line"></span><br><span class="line">$ npm install -g es-checker</span><br><span class="line"></span><br><span class="line">$ es-checker</span><br><span class="line"></span><br><span class="line">ECMAScript 6 Feature Detection (v1.4.1)</span><br><span class="line"></span><br><span class="line">Variables</span><br><span class="line">  √ <span class="built_in">let</span> and const</span><br><span class="line">  √ TDZ error <span class="keyword">for</span> too-early access of <span class="built_in">let</span> or const declarations</span><br><span class="line">  √ Redefinition of const declarations not allowed</span><br><span class="line">  √ destructuring assignments/declarations <span class="keyword">for</span> arrays and objects</span><br><span class="line">  √ ... operator</span><br><span class="line"></span><br><span class="line">Data Types</span><br><span class="line">  √ For...of loop</span><br><span class="line">  √ Map, Set, WeakMap, WeakSet</span><br><span class="line">  √ Symbol</span><br><span class="line">  √ Symbols cannot be implicitly coerced</span><br><span class="line"></span><br><span class="line">Number</span><br><span class="line">  √ Octal (e.g. 0o1 ) and binary (e.g. 0b10 ) literal forms</span><br><span class="line">  √ Old octal literal invalid now (e.g. 01 )</span><br><span class="line">  √ Static <span class="built_in">functions</span> added to Math (e.g. Math.hypot(), Math.acosh(), Math.imul() )</span><br><span class="line">  √ Static <span class="built_in">functions</span> added to Number (Number.isNaN(), Number.isInteger() )</span><br><span class="line"></span><br><span class="line">String</span><br><span class="line">  √ Methods added to String.prototype (String.prototype.includes(), String.prototype.repeat() )</span><br><span class="line">  √ Unicode code-point escape form <span class="keyword">in</span> string literals (e.g. \u&#123;20BB7&#125; )</span><br><span class="line">  √ Unicode code-point escape form <span class="keyword">in</span> identifier names (e.g. var \u&#123;20BB7&#125; = 42; )</span><br><span class="line">  √ Unicode code-point escape form <span class="keyword">in</span> regular expressions (e.g. var regexp = /\u&#123;20BB7&#125;/u; )</span><br><span class="line">  √ y flag <span class="keyword">for</span> sticky regular expressions (e.g. /b/y )</span><br><span class="line">  √ Template String Literals</span><br><span class="line"></span><br><span class="line">Function</span><br><span class="line">  √ arrow <span class="keyword">function</span></span><br><span class="line">  √ default <span class="keyword">function</span> parameter values</span><br><span class="line">  √ destructuring <span class="keyword">for</span> <span class="keyword">function</span> parameters</span><br><span class="line">  √ Inferences <span class="keyword">for</span> <span class="keyword">function</span> name property <span class="keyword">for</span> anonymous <span class="built_in">functions</span></span><br><span class="line">  × Tail-call optimization <span class="keyword">for</span> <span class="keyword">function</span> calls and recursion</span><br><span class="line"></span><br><span class="line">Array</span><br><span class="line">  × Methods added to Array.prototype ([].fill(), [].find(), [].findIndex(), [].entries(), [].keys(), [].values() )</span><br><span class="line">  √ Static <span class="built_in">functions</span> added to Array (Array.from(), Array.of() )</span><br><span class="line">  √ TypedArrays like Uint8Array, ArrayBuffer, Int8Array(), Int32Array(), Float64Array()</span><br><span class="line">  √ Some Array methods (e.g. Int8Array.prototype.slice(), Int8Array.prototype.join(), Int8Array.prototype.forEach() ) added to the TypedArray prototypes</span><br><span class="line">  √ Some Array statics (e.g. Uint32Array.from(), Uint32Array.of() ) added to the TypedArray constructors</span><br><span class="line"></span><br><span class="line">Object</span><br><span class="line">  √ __proto__ <span class="keyword">in</span> object literal definition sets [[Prototype]] link</span><br><span class="line">  √ Static <span class="built_in">functions</span> added to Object (Object.getOwnPropertySymbols(), Object.assign() )</span><br><span class="line">  √ Object Literal Computed Property</span><br><span class="line">  √ Object Literal Property Shorthands</span><br><span class="line">  √ Proxies</span><br><span class="line">  √ Reflect</span><br><span class="line"></span><br><span class="line">Generator and Promise</span><br><span class="line">  √ Generator <span class="keyword">function</span></span><br><span class="line">  √ Promises</span><br><span class="line"></span><br><span class="line">Class</span><br><span class="line">  √ Class</span><br><span class="line">  √ super allowed <span class="keyword">in</span> object methods</span><br><span class="line">  √ class ABC extends Array &#123; .. &#125;</span><br><span class="line"></span><br><span class="line">Module</span><br><span class="line">  × Module <span class="built_in">export</span> <span class="built_in">command</span></span><br><span class="line">  × Module import <span class="built_in">command</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">=========================================</span><br><span class="line">Passes 38 feature Detections</span><br><span class="line">Your runtime supports 90% of ECMAScript 6</span><br><span class="line">=========================================</span><br></pre></td></tr></table></figure>
+
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol>
+<li>安装三个依赖</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev babel-cli babel-preset-stage-2 babel-preset-es2015  babel-plugin-transform-runtime</span><br></pre></td></tr></table></figure>
+
+<p>其中 babel-cli 自带 babel-node 命令</p>
+<ol start="2">
+<li>修改 package.json 的 script</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"scripts"</span>: &#123;</span><br><span class="line">    <span class="string">"start"</span>: <span class="string">"babel-node server.js"</span></span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>再加入.babelrc</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"presets"</span>: [</span><br><span class="line">        <span class="string">"es2015"</span>,</span><br><span class="line">        <span class="string">"stage-2"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">"plugins"</span>: [<span class="string">"transform-runtime"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>最后运行 <code>npm run start</code> 启动程序</li>
+</ol>
+<h2 id="如果要在-vscode-中调试-es6-代码"><a href="#如果要在-vscode-中调试-es6-代码" class="headerlink" title="如果要在 vscode 中调试 es6 代码"></a>如果要在 vscode 中调试 es6 代码</h2><p>在 package.json 里加入一下代码，能将除了 node_modules 以外的代码都打包入 dist 文件夹</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&quot;scripts&quot;: &#123;</span><br><span class="line">    // 省略其他...</span><br><span class="line">    &quot;build&quot;: &quot;babel ./ --ignore node_modules  -d dist --source-maps&quot;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>接着在 .vscode 文件夹下加入 task.json</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"version"</span>: <span class="string">"0.1.0"</span>,</span><br><span class="line">    <span class="string">"command"</span>: <span class="string">"npm"</span>,</span><br><span class="line">    <span class="string">"isShellCommand"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"showOutput"</span>: <span class="string">"always"</span>,</span><br><span class="line">    <span class="string">"suppressTaskName"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"tasks"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"taskName"</span>: <span class="string">"build"</span>,</span><br><span class="line">            <span class="string">"args"</span>: [ <span class="string">"run"</span>, <span class="string">"build"</span> ],</span><br><span class="line">            <span class="string">"isBuildCommand"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再于 .vscode 加入 launch.json </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 使用 IntelliSense 了解相关属性。</span></span><br><span class="line">    <span class="comment">// 悬停以查看现有属性的描述。</span></span><br><span class="line">    <span class="comment">// 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387</span></span><br><span class="line">    <span class="string">"version"</span>: <span class="string">"0.1.0"</span>,</span><br><span class="line">    <span class="string">"configurations"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"name"</span>: <span class="string">"Launch"</span>,</span><br><span class="line">            <span class="string">"type"</span>: <span class="string">"node"</span>,</span><br><span class="line">            <span class="string">"request"</span>: <span class="string">"launch"</span>,</span><br><span class="line">            <span class="string">"program"</span>: <span class="string">"$&#123;workspaceRoot&#125;/server.js"</span>,</span><br><span class="line">            <span class="string">"stopOnEntry"</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"args"</span>: [],</span><br><span class="line">            <span class="string">"cwd"</span>: <span class="string">"$&#123;workspaceRoot&#125;"</span>,</span><br><span class="line">            <span class="string">"preLaunchTask"</span>: <span class="string">"build"</span>,</span><br><span class="line">            <span class="string">"runtimeExecutable"</span>: <span class="literal">null</span>,</span><br><span class="line">            <span class="string">"runtimeArgs"</span>: [ <span class="string">"--nolazy"</span> ],</span><br><span class="line">            <span class="string">"env"</span>: &#123;</span><br><span class="line">                <span class="string">"NODE_ENV"</span>: <span class="string">"development"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"console"</span>: <span class="string">"integratedTerminal"</span>,</span><br><span class="line">            <span class="string">"sourceMaps"</span>: <span class="literal">true</span>,</span><br><span class="line">            <span class="string">"outFiles"</span>: [<span class="string">"$&#123;workspaceRoot&#125;/dist/*.js"</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后按F5启动，每次启动都会由 preLaunchTask 来预先 运行 build task 来把 es6 代码编译了，再启动</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/06/14/javascript/object-property-order/" rel="next" title="JS 对象内部属性遍历的顺序乱了">
+                  <i class="fa fa-chevron-left"></i> JS 对象内部属性遍历的顺序乱了
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/07/05/node/centos-install-node/" rel="prev" title="CentOS 安装 nodejs 一件套">
+                  CentOS 安装 nodejs 一件套 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤"><span class="nav-number">2.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如果要在-vscode-中调试-es6-代码"><span class="nav-number">3.</span> <span class="nav-text">如果要在 vscode 中调试 es6 代码</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: 'dfca879b059f451c2747747a1dd30ea7',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

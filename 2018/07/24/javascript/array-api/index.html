@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="增删改查、迭代、深拷贝、去重等操作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="经典数组操作方法">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2018&#x2F;07&#x2F;24&#x2F;javascript&#x2F;array-api&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="增删改查、迭代、深拷贝、去重等操作">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.810Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://everlose.github.io/2018/07/24/javascript/array-api/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>经典数组操作方法 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2018/07/24/javascript/array-api/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          经典数组操作方法
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-07-24 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-24T00:00:00+08:00">2018-07-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">增删改查、迭代、深拷贝、去重等操作</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Arrays"><a href="#Arrays" class="headerlink" title="Arrays"></a>Arrays</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list = [a,b,c,d,e]</span><br></pre></td></tr></table></figure>
+<p>{: .-setup}</p>
+<h2 id="子集"><a href="#子集" class="headerlink" title="子集"></a>子集</h2><h4 id="Immutable"><a href="#Immutable" class="headerlink" title="Immutable"></a>Immutable</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list.slice(<span class="number">0</span>,<span class="number">1</span>)         <span class="comment">// → [a]</span></span><br><span class="line">list.slice(<span class="number">1</span>)           <span class="comment">// → [b,c,d,e]</span></span><br><span class="line">list.slice(<span class="number">1</span>,<span class="number">2</span>)         <span class="comment">// → [b]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Mutative"><a href="#Mutative" class="headerlink" title="Mutative"></a>Mutative</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">re = list.splice(<span class="number">1</span>)     <span class="comment">// re = [b,c,d,e]  list == [a]</span></span><br><span class="line">re = list.splice(<span class="number">1</span>,<span class="number">2</span>)   <span class="comment">// re = [b,c]      list == [a,d,e]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="增"><a href="#增" class="headerlink" title="增"></a>增</h2><h4 id="Mutative-1"><a href="#Mutative-1" class="headerlink" title="Mutative"></a>Mutative</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list.push(X)            <span class="comment">// list == [_,_,_,_,_,X]</span></span><br><span class="line">list.unshift(X)         <span class="comment">// list == [X,_,_,_,_,_]</span></span><br><span class="line">list.splice(<span class="number">2</span>, <span class="number">0</span>, X)    <span class="comment">// list == [_,_,X,_,_,_]</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Immutable-1"><a href="#Immutable-1" class="headerlink" title="Immutable"></a>Immutable</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list.concat([X,Y])      <span class="comment">// → [_,_,_,_,_,X,Y]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="改"><a href="#改" class="headerlink" title="改"></a>改</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list.splice(<span class="number">2</span>, <span class="number">1</span>, X)    <span class="comment">// list == [a,b,X,d,e]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="删"><a href="#删" class="headerlink" title="删"></a>删</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list.pop()              <span class="comment">// → e    list == [a,b,c,d]</span></span><br><span class="line">list.shift()            <span class="comment">// → a    list == [b,c,d,e]</span></span><br><span class="line">list.splice(<span class="number">2</span>, <span class="number">1</span>)       <span class="comment">// → [c]  list == [a,b,d,e]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="迭代"><a href="#迭代" class="headerlink" title="迭代"></a>迭代</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> list = [</span><br><span class="line">    &#123; <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'张三'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;, </span><br><span class="line">    &#123; <span class="attr">id</span>: <span class="number">2</span>, <span class="attr">name</span>: <span class="string">'李四'</span>, <span class="attr">age</span>: <span class="number">24</span> &#125;, </span><br><span class="line">    &#123; <span class="attr">id</span>: <span class="number">3</span>, <span class="attr">name</span>: <span class="string">'王小二'</span>, <span class="attr">age</span>: <span class="number">22</span> &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list.forEach(<span class="function"><span class="params">item</span> =&gt;</span> <span class="built_in">console</span>.log(item.id)); <span class="comment">// 1, 2, 3</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="产生新数组"><a href="#产生新数组" class="headerlink" title="产生新数组"></a>产生新数组</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list.map(<span class="function"><span class="params">item</span> =&gt;</span> item.name); <span class="comment">// [ '张三', '李四', '王小二' ]</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="筛选"><a href="#筛选" class="headerlink" title="筛选"></a>筛选</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">list</span><br><span class="line">    .filter(<span class="function"><span class="params">item</span> =&gt;</span> item.age &gt; <span class="number">18</span>);</span><br><span class="line">    .map(<span class="function"><span class="params">item</span> =&gt;</span> item.name);</span><br><span class="line">    </span><br><span class="line"><span class="comment">// [ '李四', '王小二' ]</span></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="some方法测试数组中的某些元素是否通过指定函数的测试"><a href="#some方法测试数组中的某些元素是否通过指定函数的测试" class="headerlink" title="some方法测试数组中的某些元素是否通过指定函数的测试"></a>some方法测试数组中的某些元素是否通过指定函数的测试</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isRepeat</span> (<span class="params">array, props, value</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> array.some(<span class="function"><span class="params">item</span> =&gt;</span> item[props] === value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">isRepeat(list, <span class="string">'name'</span>, <span class="string">'张三'</span>); <span class="comment">// true</span></span><br><span class="line">isRepeat(list, <span class="string">'name'</span>, <span class="string">'李白'</span>); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="检测某个数组里的每个对象是否都具有某种属性"><a href="#检测某个数组里的每个对象是否都具有某种属性" class="headerlink" title="检测某个数组里的每个对象是否都具有某种属性"></a>检测某个数组里的每个对象是否都具有某种属性</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hasSomeProps</span> (<span class="params">array, props</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> array.every(<span class="function"><span class="params">item</span> =&gt;</span> item[props]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">hasSomeProps(list, <span class="string">'name'</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="获取累计结果"><a href="#获取累计结果" class="headerlink" title="获取累计结果"></a>获取累计结果</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">arr.reduce(<span class="function">(<span class="params">prev, curr</span>) =&gt;</span> prev + curr, <span class="number">0</span>) <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="数组去重"><a href="#数组去重" class="headerlink" title="数组去重"></a>数组去重</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unique</span> (<span class="params">arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> <span class="keyword">set</span> = new Set(arr);</span><br><span class="line">    return Array.from(<span class="keyword">set</span>);</span><br><span class="line">&#125;</span><br><span class="line">var arr = [2, NaN, 2, 3, NaN, &#123;&#125;, &#123;&#125;];</span><br><span class="line">unique(arr); <span class="comment">// [2, NaN, 3, Object, Object]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="数组深度拷贝"><a href="#数组深度拷贝" class="headerlink" title="数组深度拷贝"></a>数组深度拷贝</h2><p>同对象的深度拷贝</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 遍历法，对象需递归</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">copyObject</span> (<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> result = &#123;&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> x <span class="keyword">in</span> obj) &#123;</span><br><span class="line">        result[x] = <span class="keyword">typeof</span> obj === <span class="string">'object'</span> ?</span><br><span class="line">            copyObject(obj[x]) :</span><br><span class="line">            obj[x]</span><br><span class="line">        <span class="comment">//如果拷贝的值仍然是一个对象,那么重复执行当前方法。</span></span><br><span class="line">    &#125;　　</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">copyObject</span> (<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">JSON</span>.parse(<span class="built_in">JSON</span>.stringify(obj));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="伪数组转真数组"><a href="#伪数组转真数组" class="headerlink" title="伪数组转真数组"></a>伪数组转真数组</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = &#123; <span class="number">0</span>: <span class="string">'a'</span>, <span class="number">1</span>: <span class="string">'b'</span>, <span class="number">2</span>: <span class="string">'c'</span>, <span class="attr">length</span>: <span class="number">3</span>, <span class="attr">splice</span>: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125; &#125;;</span><br><span class="line">arr = <span class="built_in">Array</span>.prototype.slice.call(arr);</span><br><span class="line">arr; <span class="comment">// ["a", "b", "c"]    真数组</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/07/24/javascript/date-api/" rel="next" title="经典日期操作方法">
+                  <i class="fa fa-chevron-left"></i> 经典日期操作方法
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/07/25/tcp-http/is-http-reuse-a-tcp/" rel="prev" title="浏览器发送的 http 请求是复用一个 tcp 连接么">
+                  浏览器发送的 http 请求是复用一个 tcp 连接么 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Arrays"><span class="nav-number">1.</span> <span class="nav-text">Arrays</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#子集"><span class="nav-number">2.</span> <span class="nav-text">子集</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Immutable"><span class="nav-number">2.0.1.</span> <span class="nav-text">Immutable</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mutative"><span class="nav-number">2.1.</span> <span class="nav-text">Mutative</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#增"><span class="nav-number">3.</span> <span class="nav-text">增</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Mutative-1"><span class="nav-number">3.0.1.</span> <span class="nav-text">Mutative</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Immutable-1"><span class="nav-number">3.0.2.</span> <span class="nav-text">Immutable</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改"><span class="nav-number">4.</span> <span class="nav-text">改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#删"><span class="nav-number">5.</span> <span class="nav-text">删</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代"><span class="nav-number">6.</span> <span class="nav-text">迭代</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#产生新数组"><span class="nav-number">6.0.1.</span> <span class="nav-text">产生新数组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#筛选"><span class="nav-number">6.0.2.</span> <span class="nav-text">筛选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#some方法测试数组中的某些元素是否通过指定函数的测试"><span class="nav-number">6.0.3.</span> <span class="nav-text">some方法测试数组中的某些元素是否通过指定函数的测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检测某个数组里的每个对象是否都具有某种属性"><span class="nav-number">6.0.4.</span> <span class="nav-text">检测某个数组里的每个对象是否都具有某种属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获取累计结果"><span class="nav-number">6.0.5.</span> <span class="nav-text">获取累计结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数组去重"><span class="nav-number">7.</span> <span class="nav-text">数组去重</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数组深度拷贝"><span class="nav-number">8.</span> <span class="nav-text">数组深度拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#伪数组转真数组"><span class="nav-number">9.</span> <span class="nav-text">伪数组转真数组</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: '0fb12ca2e219f6ebfaedb62f77180d8e',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

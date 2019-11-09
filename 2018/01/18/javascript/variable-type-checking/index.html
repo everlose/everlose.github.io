@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="太长直接拉到结尾看检验方法，共检验了6种原始类型和若干引用类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="js 变量类型检测">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2018&#x2F;01&#x2F;18&#x2F;javascript&#x2F;variable-type-checking&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="太长直接拉到结尾看检验方法，共检验了6种原始类型和若干引用类型">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.814Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://everlose.github.io/2018/01/18/javascript/variable-type-checking/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>js 变量类型检测 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2018/01/18/javascript/variable-type-checking/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          js 变量类型检测
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-01-18 00:00:00" itemprop="dateCreated datePublished" datetime="2018-01-18T00:00:00+08:00">2018-01-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">太长直接拉到结尾看检验方法，共检验了6种原始类型和若干引用类型</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>javascript的变量类型分为原始类型和引用类型。</p>
+<ul>
+<li>原始类型有6种, 注意多了 Symbol<ul>
+<li>Number</li>
+<li>String</li>
+<li>Boolean</li>
+<li>Null</li>
+<li>Undefined</li>
+<li>Symbol</li>
+</ul>
+</li>
+<li>引用类型包括<ul>
+<li>Function</li>
+<li>Array</li>
+<li>Date</li>
+<li>Object</li>
+<li>RegExp</li>
+</ul>
+</li>
+</ul>
+<p>而检测这些类型的变量有3种办法：<code>typeof</code>，<code>instanceof</code>，<code>Object.prototype.toString.call</code>。让我来一一例举，废话不多说，上代码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//首先是typeof</span></span><br><span class="line"><span class="keyword">var</span> obj = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"number"</span></span><br><span class="line">obj = <span class="string">"abc"</span></span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"string"</span></span><br><span class="line">obj = <span class="literal">false</span></span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"boolean"</span></span><br><span class="line">obj = <span class="literal">undefined</span>;</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"undefined"</span></span><br><span class="line">obj = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"object"，WTF，其实这是js的一个bug，人艰不拆 T_T</span></span><br><span class="line">obj = <span class="built_in">Symbol</span>();</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"symbol"</span></span><br><span class="line"></span><br><span class="line">obj = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"function"</span></span><br><span class="line">obj = [];</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"object"</span></span><br><span class="line">obj = &#123;&#125;;</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"object"</span></span><br><span class="line">obj = <span class="regexp">/w/g</span>;</span><br><span class="line"><span class="keyword">typeof</span> obj <span class="comment">//"object"</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面我们可以得出type能检测原始类型<code>number</code>,<code>string</code>,<code>boolean</code>,<code>undefined</code>，引用类型的<code>function</code>。但是对于数组和对象却是无法区分。</p>
+<p>而关于引用类型，还可以尝试下<code>instanceof</code>操作符。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">Function</span>; <span class="comment">//true</span></span><br><span class="line">obj = [];</span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">Array</span>; <span class="comment">//true</span></span><br><span class="line">obj = &#123;&#125;;</span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">Object</span>; <span class="comment">//true</span></span><br><span class="line">obj = <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">Date</span>; <span class="comment">//true</span></span><br><span class="line">obj = <span class="regexp">/w/g</span>;</span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">RegExp</span>; <span class="comment">//true</span></span><br><span class="line"><span class="comment">//....wait for it, 事情其实还没完呢</span></span><br><span class="line">obj = [];</span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">Object</span>; <span class="comment">//true  所有引用类型其实都是继承自Object对象的，所以你懂的。</span></span><br></pre></td></tr></table></figure>
+
+<p>incetanceof 操作符能鉴别引用类型，可惜有个缺憾是，如果想鉴别一个变量object类型而不是其他的<code>function</code>，<code>array</code>，<code>date</code>什么的，仍然需要花一番力气。</p>
+<p>这里我们是不是漏了什么，如果..</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">'abc'</span>);</span><br><span class="line"><span class="keyword">typeof</span> obj; <span class="comment">//"object" 。 </span></span><br><span class="line">obj <span class="keyword">instanceof</span> <span class="built_in">String</span>; <span class="comment">//true 。</span></span><br></pre></td></tr></table></figure>
+
+<p>天了个撸，不能愉快玩耍了。要解释这个, 就得解释js里变量的赋值规则。 </p>
+<ul>
+<li>原始类型的变量直接保存原始值，而不是一个指向对象的指针。如果一个变量赋值给另一个变量，那么每个变量都它自己的一份数据拷贝，并不会相互影响。</li>
+<li>引用类型的变量保存的是一个指向内存中实际对象所在的指针（或者说引用）。因此当你将一个对象赋值给变量时，实际是赋值给这个变量一个指针。意味着将一个变量赋值给另一个变量时，两个变量指向的是内存中同一个对象。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = <span class="string">'abc'</span>;</span><br><span class="line">obj.something = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">var</span> firstChar = obj.charAt(<span class="number">0</span>); <span class="comment">//"a"</span></span><br><span class="line"><span class="built_in">console</span>.log(obj.something); <span class="comment">//undefined</span></span><br><span class="line"><span class="comment">//实际上js做了这样的处理</span></span><br><span class="line"><span class="keyword">var</span> obj = <span class="string">'abc'</span>;</span><br><span class="line"><span class="keyword">var</span> temp = <span class="keyword">new</span> <span class="built_in">String</span>(obj);</span><br><span class="line"><span class="keyword">var</span> firstChar = temp.charAt(<span class="number">0</span>); <span class="comment">//"a"</span></span><br><span class="line">temp.something = <span class="number">1</span>;</span><br><span class="line">temp = <span class="literal">null</span>;</span><br><span class="line"><span class="built_in">console</span>.log(obj.something); <span class="comment">//undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>创建了一个临时的引用类型变量去访问属性，修改属性，然后就被释放了，扯远了。</p>
+<p>总而言之，如果指定<code>obj = &quot;abc&quot;</code>则obj保存的实际上就是abc的值，是一个基本类型。而如果指定<code>obj = new String(&#39;abc&#39;)</code>那么obj实际上保存的是一个指向字符串对象的指针。所以就不难理解两者对于<code>typeof</code>和<code>instanceof</code>的差别了<br>额，读者：“说了这么多，你有没有一种万全的手段哇”。好吧， 我们来一个简单又粗暴的鉴别手段。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Number]'</span>; <span class="comment">//true</span></span><br><span class="line">obj = <span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">1</span>);</span><br><span class="line"><span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Number]'</span>; <span class="comment">//true</span></span><br><span class="line">obj = <span class="built_in">Symbol</span>();</span><br><span class="line"><span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Symbol]'</span>; <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line">obj = [];</span><br><span class="line"><span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Array]'</span>; <span class="comment">//true</span></span><br><span class="line">obj = <span class="keyword">new</span> <span class="built_in">Array</span>();</span><br><span class="line"><span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Array]'</span>; <span class="comment">//true</span></span><br><span class="line"><span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object Object]'</span>; <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
+
+<p>这个方法是不是很好用呢， 哇哈哈哈哈。</p>
+<p><strong>总结归纳了下，我列举了一些校验函数:</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//低版本ie中undefined变量可以被修改，所以使用void 0 获取真实的undefined值，</span></span><br><span class="line"><span class="keyword">var</span> isUndefined = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//or: return typeof obj === 'undefined';</span></span><br><span class="line">    <span class="keyword">return</span> obj === <span class="keyword">void</span> <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//typeof null 的结果是"object"。</span></span><br><span class="line"><span class="keyword">var</span> isNull = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> obj === <span class="literal">null</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// boolean值，number值和string值需要考虑两种情况，值为字面量时使用typeof和Object.prototype.toString能检测; </span></span><br><span class="line"><span class="comment">// 值为构造函数构建的时候需要使用Object.prototype.toString或者instanceof检测</span></span><br><span class="line"><span class="keyword">var</span> isBoolean = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object Boolean]'</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> isNumber = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object Number]'</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> isString = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object String]'</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> isSymbol = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object Symbol]'</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> <span class="built_in">isNaN</span> = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> obj !== obj;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//typeof 操作符在引用类型的变量里能对function有效。</span></span><br><span class="line"><span class="keyword">var</span> isFunction = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//or:  return Object.prototype.toString.call(obj) == '[object Function]';</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> obj === <span class="string">'function'</span>;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> isDate = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object Date]'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> isArray = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object Array]'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> isObject = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//or: return obj === Object(obj);</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object Object]'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> isRegExp = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//or: return obj === Object(obj);</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) == <span class="string">'[object RegExp]'</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> has = <span class="function"><span class="keyword">function</span>(<span class="params">obj, key</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.hasOwnProperty.call(obj, key);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//判断数组，字符串，对象是否为空</span></span><br><span class="line"><span class="keyword">var</span> isEmpty = <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (obj == <span class="literal">null</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (isArray(obj) || isString(obj)) <span class="keyword">return</span> obj.length === <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) <span class="keyword">if</span> (has(obj, key)) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="最后再来一个好用的识别方法"><a href="#最后再来一个好用的识别方法" class="headerlink" title="最后再来一个好用的识别方法"></a>最后再来一个好用的识别方法</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getType</span>(<span class="params">p</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (obj === <span class="keyword">void</span> <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'Undefined'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (obj === <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'Null'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    /<span class="function"><span class="keyword">function</span>.(<span class="params">\w*</span>)\(<span class="params">\</span>)/.<span class="title">test</span>(<span class="params">p.constructor</span>); //通过其构造函数来获取对应的类型。</span></span><br><span class="line"><span class="function">    <span class="title">return</span> <span class="title">RegExp</span>.<span class="title">$1</span>;</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"><span class="title">getType</span>(<span class="params"><span class="string">'1'</span></span>); //"<span class="title">String</span>"</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/01/18/javascript/what-does-new-in-js-do/" rel="next" title="new 操作符都做了什么">
+                  <i class="fa fa-chevron-left"></i> new 操作符都做了什么
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/03/06/browser/reflow-repaint/" rel="prev" title="浏览器的重绘与回流(Reflow & Repaint)">
+                  浏览器的重绘与回流(Reflow & Repaint) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后再来一个好用的识别方法"><span class="nav-number">2.</span> <span class="nav-text">最后再来一个好用的识别方法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: '686d94c84ac3eaa84a46db7b40a81b6b',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="alternate" href="/atom.xml" title="el's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="近日业务需要制作一个圆环进度条，要类似360的圆环打分效果。特来钻研一阵，最后选型svg技术实现，因为比起canvas在移动端更方便控制尺寸。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="svg画圆环进度动画">
+<meta property="og:url" content="http:&#x2F;&#x2F;everlose.github.io&#x2F;2017&#x2F;05&#x2F;04&#x2F;svg&#x2F;svg-ring-animate&#x2F;index.html">
+<meta property="og:site_name" content="el&#39;s blog">
+<meta property="og:description" content="近日业务需要制作一个圆环进度条，要类似360的圆环打分效果。特来钻研一阵，最后选型svg技术实现，因为比起canvas在移动端更方便控制尺寸。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-5-3&#x2F;17004000-file_1493801348693_c319.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-5-3&#x2F;6769724-file_1493801775184_9b3c.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-5-3&#x2F;56943354-file_1493802117632_4cc0.png">
+<meta property="og:updated_time" content="2019-11-09T09:01:37.832Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;7xn4mw.com1.z0.glb.clouddn.com&#x2F;17-5-3&#x2F;17004000-file_1493801348693_c319.png">
+
+<link rel="canonical" href="http://everlose.github.io/2017/05/04/svg/svg-ring-animate/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>svg画圆环进度动画 | el's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">el's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">everlose's blog</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://everlose.github.io/2017/05/04/svg/svg-ring-animate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="everlose">
+      <meta itemprop="description" content="focus on Js、CSS、Node...etc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="el's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          svg画圆环进度动画
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-05-04 10:58:49" itemprop="dateCreated datePublished" datetime="2017-05-04T10:58:49+08:00">2017-05-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-09 17:01:37" itemprop="dateModified" datetime="2019-11-09T17:01:37+08:00">2019-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/svg/" itemprop="url" rel="index">
+                    <span itemprop="name">svg</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">近日业务需要制作一个圆环进度条，要类似360的圆环打分效果。特来钻研一阵，最后选型svg技术实现，因为比起canvas在移动端更方便控制尺寸。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、先画一圆环"><a href="#一、先画一圆环" class="headerlink" title="一、先画一圆环"></a>一、先画一圆环</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">xmlns</span>=<span class="string">"http://www.w3.org/2000/svg"</span> <span class="attr">height</span>=<span class="string">"110"</span> <span class="attr">width</span>=<span class="string">"110"</span> <span class="attr">viewBox</span>=<span class="string">"0 0 110 110"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">stroke</span>=<span class="string">"#F2F2F2"</span> <span class="attr">fill</span>=<span class="string">"none"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>定义让外层容器为宽高110px的正方形，并且定义在容器的中心处（cx=”50%”” cy=”50%”）画半径为50px的圆（r=”50”），圆的内容不着色（fill=”none”）。描边为10px，着描边色为灰色（stroke-width=”10” stroke=”#F2F2F2”）</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-5-3/17004000-file_1493801348693_c319.png" alt=""></p>
+<h2 id="二、再来一层绿色圆环叠加"><a href="#二、再来一层绿色圆环叠加" class="headerlink" title="二、再来一层绿色圆环叠加"></a>二、再来一层绿色圆环叠加</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">xmlns</span>=<span class="string">"http://www.w3.org/2000/svg"</span> <span class="attr">height</span>=<span class="string">"110"</span> <span class="attr">width</span>=<span class="string">"110"</span> <span class="attr">viewBox</span>=<span class="string">"0 0 110 110"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">stroke</span>=<span class="string">"#F2F2F2"</span> <span class="attr">fill</span>=<span class="string">"none"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">id</span>=<span class="string">"ring"</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">stroke</span>=<span class="string">"green"</span> <span class="attr">fill</span>=<span class="string">"none"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">transform</span>=<span class="string">"rotate(-90 55 55)"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">stroke-dasharray</span>=<span class="string">"100, 314"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>下面的 <code>circle</code> 着描边为绿，并且写上了 <code>stroke-dasharray</code> ，此属性参数第一个数值表示dash，这里代表覆盖范围，后一个数字表示gap长度默认为circle的周长314。此外tranform属性的作用是将圆环从0点位置开始覆盖，不写此属性则从3点位置开始覆盖（rotate第一个参数为角度，第二个和第三个参数为旋转中心，这里为容器的中心）。</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-5-3/6769724-file_1493801775184_9b3c.png" alt=""></p>
+<h2 id="三、给圆环加入渐变色"><a href="#三、给圆环加入渐变色" class="headerlink" title="三、给圆环加入渐变色"></a>三、给圆环加入渐变色</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">xmlns</span>=<span class="string">"http://www.w3.org/2000/svg"</span> <span class="attr">height</span>=<span class="string">"110"</span> <span class="attr">width</span>=<span class="string">"110"</span> <span class="attr">viewBox</span>=<span class="string">"0 0 110 110"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">linearGradient</span> <span class="attr">id</span>=<span class="string">"svg-gradient"</span> <span class="attr">gradientUnits</span>=<span class="string">"userSpaceOnUse"</span> <span class="attr">x1</span>=<span class="string">"100%"</span> <span class="attr">y1</span>=<span class="string">"100%"</span> <span class="attr">x2</span>=<span class="string">"0%"</span> <span class="attr">y2</span>=<span class="string">"0%"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">stop</span> <span class="attr">offset</span>=<span class="string">"0%"</span> <span class="attr">style</span>=<span class="string">"stop-color:yellow"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">stop</span> <span class="attr">offset</span>=<span class="string">"100%"</span> <span class="attr">style</span>=<span class="string">"stop-color:green"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">linearGradient</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">stroke</span>=<span class="string">"#F2F2F2"</span> <span class="attr">fill</span>=<span class="string">"none"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">id</span>=<span class="string">"ring"</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">fill</span>=<span class="string">"none"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">stroke</span>=<span class="string">"url(#svg-gradient)"</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">transform</span>=<span class="string">"rotate(-90 55 55)"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">stroke-dasharray</span>=<span class="string">"200, 314"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>id为ring的 <code>circle</code> 改变了stroke属性为 <code>url(#svg-gradient)</code> ，意为以上面的 <code>linearGradient</code> 背景，以起点黄到终点绿渐变。</p>
+<p><img src="http://7xn4mw.com1.z0.glb.clouddn.com/17-5-3/56943354-file_1493802117632_4cc0.png" alt=""></p>
+<h2 id="四、加入动画"><a href="#四、加入动画" class="headerlink" title="四、加入动画"></a>四、加入动画</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line"><span class="selector-tag">circle</span> &#123;</span><br><span class="line">    <span class="attribute">-webkit-transition</span>: stroke-dasharray <span class="number">2s</span>;</span><br><span class="line">    <span class="attribute">transition</span>: stroke-dasharray <span class="number">2s</span>;</span><br><span class="line">&#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>设置css动画持续2s</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">xmlns</span>=<span class="string">"http://www.w3.org/2000/svg"</span> <span class="attr">height</span>=<span class="string">"110"</span> <span class="attr">width</span>=<span class="string">"110"</span> <span class="attr">viewBox</span>=<span class="string">"0 0 110 110"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">linearGradient</span> <span class="attr">id</span>=<span class="string">"svg-gradient"</span> <span class="attr">gradientUnits</span>=<span class="string">"userSpaceOnUse"</span> <span class="attr">x1</span>=<span class="string">"100%"</span> <span class="attr">y1</span>=<span class="string">"100%"</span> <span class="attr">x2</span>=<span class="string">"0"</span> <span class="attr">y2</span>=<span class="string">"0"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">stop</span> <span class="attr">offset</span>=<span class="string">"0%"</span> <span class="attr">style</span>=<span class="string">"stop-color:yellow"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">stop</span> <span class="attr">offset</span>=<span class="string">"100%"</span> <span class="attr">style</span>=<span class="string">"stop-color:green"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">linearGradient</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">stroke</span>=<span class="string">"#F2F2F2"</span> <span class="attr">fill</span>=<span class="string">"none"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">circle</span> <span class="attr">id</span>=<span class="string">"ring"</span> <span class="attr">cx</span>=<span class="string">"50%"</span> <span class="attr">cy</span>=<span class="string">"50%"</span> <span class="attr">r</span>=<span class="string">"50"</span> <span class="attr">stroke-width</span>=<span class="string">"10"</span> <span class="attr">fill</span>=<span class="string">"none"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">stroke</span>=<span class="string">"url(#svg-gradient)"</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">transform</span>=<span class="string">"rotate(-90 55 55)"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">stroke-dasharray</span>=<span class="string">"0, 314"</span>&gt;</span><span class="tag">&lt;/<span class="name">circle</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>id为ring的 <code>circle</code> 改变了 <code>stroke-dasharray</code> 使其 <code>dash</code> 参数初始化为0。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> targetRing = <span class="built_in">document</span>.getElementById(<span class="string">'ring'</span>);</span><br><span class="line"><span class="keyword">var</span> totalLength = targetRing.getTotalLength();</span><br><span class="line"></span><br><span class="line">targetRing.style.strokeDasharray = totalLength + <span class="string">', '</span> + totalLength;</span><br></pre></td></tr></table></figure>
+
+<p>设置改变 <code>circle</code> 的 <code>stroke-dasharray</code>，0为初始，而周长314为一整个圆（直径为100可算得）。</p>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><p>如果改变了圆环尺寸，以下需要更改</p>
+<ul>
+<li><code>svg</code> 容器的 <code>width</code> 和 <code>height</code>，还有 <code>viewBox</code></li>
+<li>两个 <code>circle</code> 的 <code>r</code> 值 还有 <code>stroke-width</code>值</li>
+<li><code>#ring</code> 的 <code>transform=rotate()</code> 里的后两个参数为容器的中心坐标</li>
+<li><code>#ring</code> 的 <code>stroke-dasharray</code> 里的最后一个参数当为圆的周长</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://www.tuicool.com/articles/VfyMfua" target="_blank" rel="noopener">推酷-理解SVG坐标系统和变换： transform属性</a></li>
+<li><a href="http://www.zhangxinxu.com/wordpress/2015/07/svg-circle-loading/" target="_blank" rel="noopener">张鑫旭博客-使用SVG寥寥数行实现圆环loading进度效果</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2017/04/10/javascript/commonjs-amd-cmd-es6/" rel="next" title="CommonJS 中的 require/exports 和 ES6 中的 import/export 区别？">
+                  <i class="fa fa-chevron-left"></i> CommonJS 中的 require/exports 和 ES6 中的 import/export 区别？
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2017/05/27/os/linux-glob/" rel="prev" title="glob 模式的 Linux Shell 通配符">
+                  glob 模式的 Linux Shell 通配符 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、先画一圆环"><span class="nav-number">1.</span> <span class="nav-text">一、先画一圆环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、再来一层绿色圆环叠加"><span class="nav-number">2.</span> <span class="nav-text">二、再来一层绿色圆环叠加</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、给圆环加入渐变色"><span class="nav-number">3.</span> <span class="nav-text">三、给圆环加入渐变色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、加入动画"><span class="nav-number">4.</span> <span class="nav-text">四、加入动画</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注意"><span class="nav-number">5.</span> <span class="nav-text">注意</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="everlose"
+    src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">everlose</p>
+  <div class="site-description" itemprop="description">focus on Js、CSS、Node...etc</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/everlose" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;everlose" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:ever-lose@foxmail.com" title="E-Mail &amp;rarr; mailto:ever-lose@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">everlose</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'f4f9408be4d26d4e5705',
+      clientSecret: '6b9f93860e2e2e74e89799eeec43b0f211d0867f',
+      repo: 'everlose.github.io',
+      owner: 'everlose',
+      admin: ['everlose'],
+      id: '54affcc6e1cf78d8fad2f2740ccda724',
+        language: 'zh-CN',
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>
